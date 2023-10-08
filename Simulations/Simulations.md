@@ -6,3 +6,6 @@ Added xor, addition of 4 (constant), and shift left of 2 bits.
 
 ## Simulation 3:
 Added cases of comparations: A greater than B, equals B, lower than B.
+
+## Simulation 4:
+Testing overflow using unsigned operads.
