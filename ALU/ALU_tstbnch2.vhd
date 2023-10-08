@@ -9,13 +9,13 @@ ARCHITECTURE ALU_vhd_tst_arch OF ALU_vhd_tst IS
 SIGNAL A : STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL B : STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL M : STD_LOGIC_VECTOR(2 DOWNTO 0);
-SIGNAL O : STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL Res : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 COMPONENT ALU
 	port (A : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- Operator A
 	      B : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- Operator B
         M : in std_logic_vector(2 downto 0); -- Mode
-        O:  out STD_LOGIC_VECTOR(7 DOWNTO 0) -- Output
+        Res:  out STD_LOGIC_VECTOR(7 DOWNTO 0) -- Output
         );
 END COMPONENT;
 BEGIN
@@ -25,7 +25,7 @@ BEGIN
 	A => A,
     B => B,
     M => M,
-    O=>  O
+    Res=>  Res
     );
 
 always : PROCESS                                              

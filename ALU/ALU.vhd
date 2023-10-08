@@ -6,7 +6,7 @@ entity ALU is
 	port (A : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- Operator A
 	      B : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- Operator B
         M : in std_logic_vector(2 downto 0); -- Mode
-        O: out STD_LOGIC_VECTOR(7 DOWNTO 0)  -- Output
+        Res: out STD_LOGIC_VECTOR(7 DOWNTO 0)  -- Output
         );
 end ALU;
 
@@ -20,7 +20,7 @@ sAdd <= unsigned(A) + unsigned(B);
 sSubs <= unsigned(A) - unsigned(B);
 sAdd4 <= unsigned(A) + uFour;
 with M select
-  O <= A and B when "000",                  -- And
+  Res <= A and B when "000",                -- And
        A or B when "001",                   -- Or
        A xor B when "010",                  -- Xor
        std_logic_vector(sAdd) when "011",   -- Addition
