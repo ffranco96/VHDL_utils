@@ -14,9 +14,9 @@ SIGNAL O : STD_LOGIC_VECTOR(7 DOWNTO 0);
 COMPONENT ALU
 	port (A : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- Operator A
 	      B : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- Operator B
-          m : in std_logic_vector(2 downto 0); -- Mode
-          O:  out STD_LOGIC_VECTOR(7 DOWNTO 0) -- Output
-          );
+        M : in std_logic_vector(2 downto 0); -- Mode
+        O:  out STD_LOGIC_VECTOR(7 DOWNTO 0) -- Output
+        );
 END COMPONENT;
 BEGIN
 	i1 : ALU

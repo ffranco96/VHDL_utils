@@ -26,7 +26,7 @@ with M select
        std_logic_vector(sAdd) when "011",   -- Addition
        std_logic_vector(sSubs) when "100",  -- Substraction
        std_logic_vector(sAdd4) when "101",  -- Addition of 4
-       --A ssl 2 when "110",                  -- Shift left of 2 bits
+       A sll 2 when "110",                  -- Shift left of 2 bits on A
        (others => '0') when others;
 
 end behavioural;
