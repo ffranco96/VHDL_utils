@@ -3,3 +3,6 @@ Once added conversion functions, a first test is performed testing each of the m
 
 ## Simulation 2:
 Added xor, addition of 4 (constant), and shift left of 2 bits.
+
+## Simulation 3:
+Added cases of comparations: A greater than B, equals B, lower than B.
