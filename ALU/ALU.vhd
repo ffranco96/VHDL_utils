@@ -11,14 +11,17 @@ entity ALU is
 end ALU;
 
 architecture behavioural of ALU is
-begin
+signal sResta, sSuma: unsigned(2 downto 0);
 
+begin
+sSuma <= unsigned(A) + unsigned(B);
+sResta <= unsigned(A) - unsigned(B);
 with M select
   sal <= 
   A and B when "000",
   A or B when "001",
-  A + B when "010",
-  A - B when "011",
+  std_logic_vector(sSuma) when "010",
+  std_logic_vector(sResta) when "011",
   (others => '0') when others;
 
 end behavioural;
