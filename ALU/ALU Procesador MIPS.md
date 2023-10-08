@@ -8,8 +8,10 @@ La Unidad Aritmético-Lógica (ALU) en un procesador MIPS (Microprocessor withou
 - Resta (subtract).
 Suma con acarreo (add with carry).
 Resta con acarreo (subtract with carry).
-- Operaciones de complemento a dos (two's complement).
-- Operaciones Lógicas:
+
+## Operaciones de complemento a dos (two's complement).
+
+## Operaciones Lógicas:
 
 - AND lógico (logical AND).
 - OR lógico (logical OR).

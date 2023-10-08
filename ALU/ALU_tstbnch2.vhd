@@ -9,13 +9,13 @@ ARCHITECTURE ALU_vhd_tst_arch OF ALU_vhd_tst IS
 SIGNAL A : STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL B : STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL M : STD_LOGIC_VECTOR(2 DOWNTO 0);
-SIGNAL sal : STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL O : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 COMPONENT ALU
-	port (A : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-	      B : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-          m : in std_logic_vector(2 downto 0);
-          sal: out STD_LOGIC_VECTOR(7 DOWNTO 0)
+	port (A : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- Operator A
+	      B : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- Operator B
+          m : in std_logic_vector(2 downto 0); -- Mode
+          O:  out STD_LOGIC_VECTOR(7 DOWNTO 0) -- Output
           );
 END COMPONENT;
 BEGIN
@@ -25,7 +25,7 @@ BEGIN
 	A => A,
     B => B,
     M => M,
-    sal=> sal
+    O=>  O
     );
 
 always : PROCESS                                              
@@ -39,20 +39,13 @@ BEGIN
 A <= "01100000";
 B <= "01000000";
 
-M <= "000";
-
-wait for 10 ns;
-
-M <= "001";
-
-wait for 10 ns;
-
 M <= "010";
-
 wait for 10 ns;
 
-M <= "011";
+M <= "101";
+wait for 10 ns;
 
+M <= "110";
 wait for 10 ns;
 
 -- Prueba con datos 2
@@ -60,40 +53,14 @@ wait for 10 ns;
 A <= "00001010";
 B <= "00000011";
 
-M <= "000";
-wait for 10 ns;
-
-M <= "001";
-wait for 10 ns;
-
 M <= "010";
 wait for 10 ns;
 
-M <= "011";
+M <= "101";
 wait for 10 ns;
 
--- Prueba con datos 3
-
-A <= "00001111";
-B <= "00000011";
-M <= "000";
+M <= "110";
 wait for 10 ns;
-
-M <= "001";
-wait for 10 ns;
-
-M <= "010";
-wait for 10 ns;
-
-
-M <= "011";
-wait for 10 ns;
-
--- Prueba con datos 4
---A <= "00100000";
---B <= "00100000";
---M <= "000";
---wait for 10 ns;
 
 WAIT;                                                        
 END PROCESS always;                                          
