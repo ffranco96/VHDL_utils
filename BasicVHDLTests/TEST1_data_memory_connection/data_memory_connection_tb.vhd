@@ -5,13 +5,13 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 	-- Add your library and packages declaration here ...
 
-entity memory_connection_tb is
-end memory_connection_tb;
+entity data_memory_connection_tb is
+end data_memory_connection_tb;
 
-architecture memory_connection_tb_arq  of memory_connection_tb is
+architecture memory_connection_tb_arq  of data_memory_connection_tb is
 	-- Component declaration of the tested unit
 
-	component memory
+	component design
 	generic (
 	   C_ELF_FILENAME     : string;
       C_MEM_SIZE         : integer
@@ -34,14 +34,14 @@ architecture memory_connection_tb_arq  of memory_connection_tb is
 	signal t_DataOut   : std_logic_vector(31 downto 0);
 	signal t_DataIn    : std_logic_vector(31 downto 0);
 	
-	constant tper_clk  : time := 50 ns;
+	constant tper_clk  : time := 25 ns;
 	constant tdelay    : time := 120 ns; -- antes 150, sino no enta direccion 0
 
 begin
 
-	Instruction_Mem_inst : memory
+	Instruction_Mem_inst : design
 	generic map (
-	   C_ELF_FILENAME     => "program1",
+	   C_ELF_FILENAME     => "data",
       C_MEM_SIZE         => 1024
    	)
 	port map (
@@ -66,24 +66,23 @@ begin
 		--wait for tper_clk/2;
 		t_RdStb <= '1';
 		t_WrStb <= '0';
-		t_Addr <= x"0000000C";
-        
-        wait for 50 ns;
-        t_Addr <= x"00000000";
-		
-        wait for 50 ns;
+		t_Addr <= x"00000000";
+        wait for tper_clk;
         t_Addr <= x"00000004";
-        
-        wait for 50 ns;
+        wait for tper_clk;
         t_Addr <= x"00000008";
+        wait for tper_clk;
+        t_Addr <= x"0000000C";
         
-        wait for 50 ns; -- Mantains same output
-		t_RdStb <= '0';
-        
-        wait for 50 ns;
-		t_RdStb <= '1';
-        t_Addr <= x"00000010";
-        
+        wait for tper_clk;
+		t_Addr <= x"00000010";
+        wait for tper_clk;
+		t_Addr <= x"00000014";
+        wait for tper_clk;
+		t_Addr <= x"00000018";
+        wait for tper_clk;
+		t_Addr <= x"0000001C";
+
         wait;
 	end process;  	
 
