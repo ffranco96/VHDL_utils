@@ -87,7 +87,7 @@ begin
 	-- Unit Under Test port map
 	UUT : processor
 		port map (
-			Clk             => Clk,
+			Clk             => Clk, --Signal Testbench => Signal Component
 			Reset           => Reset,
 			-- Instruction memory
 	      I_Addr          => I_Addr,

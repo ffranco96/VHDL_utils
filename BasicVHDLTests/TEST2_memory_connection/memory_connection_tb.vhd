@@ -11,7 +11,7 @@ end memory_connection_tb;
 architecture memory_connection_tb_arq  of memory_connection_tb is
 	-- Component declaration of the tested unit
 
-	component memory
+	component design
 	generic (
 	   C_ELF_FILENAME     : string;
       C_MEM_SIZE         : integer
@@ -39,7 +39,7 @@ architecture memory_connection_tb_arq  of memory_connection_tb is
 
 begin
 
-	Instruction_Mem_inst : memory
+	Instruction_Mem_inst : design
 	generic map (
 	   C_ELF_FILENAME     => "program1",
       C_MEM_SIZE         => 1024
@@ -63,14 +63,27 @@ begin
 	
 	process
 	begin
-		wait for tper_clk/2;
+		--wait for tper_clk/2;
 		t_RdStb <= '1';
 		t_WrStb <= '0';
+		t_Addr <= x"0000000C";
+        
+        wait for 50 ns;
+        t_Addr <= x"00000000";
 		
-        wait for 10 ns;
-		t_Addr <= x"00000004";
-        wait for 10 ns;
-		t_Addr <= x"00000008";
+        wait for 50 ns;
+        t_Addr <= x"00000004";
+        
+        wait for 50 ns;
+        t_Addr <= x"00000008";
+        
+        wait for 50 ns; -- Mantains same output
+		t_RdStb <= '0';
+        
+        wait for 50 ns;
+		t_RdStb <= '1';
+        t_Addr <= x"00000010";
+        
         wait;
 	end process;  	
 

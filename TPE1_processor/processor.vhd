@@ -38,12 +38,12 @@ component registers
            
 end component;
 
---DECLARACION DE SEÑALES--
+--DECLARACION DE SEï¿½ALES--
     --ETAPA IF--
-	if_pc --notas franco
+	--if_pc (notas franco)
 
     --ETAPA ID--
-	id_pc --notas franco
+	--id_pc (notas franco)
 
     --ETAPA EX--
 
