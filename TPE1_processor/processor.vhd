@@ -38,7 +38,7 @@ component registers
            
 end component;
 
---DECLARACION DE SE�ALES--
+--DECLARACION DE SENIALES--
     --ETAPA IF--
 	--if_pc (notas franco)
 
@@ -55,7 +55,13 @@ begin
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA IF
 ---------------------------------------------------------------------------------------------------------------
- 
+moveThroughInstMemory: process(clk)
+begin
+	if I_Addr = x"11111111" then 
+		I_Addr <= x"00000000";
+	elsif falling_edge(clk) then
+		I_Addr <= std_logic_vector(unsigned(I_Addr) + 1) --@todo chequear porque en realidad se debe declarar una signal o una variable para hacer esto.
+end process moveThroughInstMemory; 
  
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
