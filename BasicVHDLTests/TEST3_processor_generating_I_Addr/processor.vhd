@@ -25,18 +25,18 @@ architecture processor_arq of processor is
 
 --DECLARACION DE COMPONENTES--
 
-component registers 
-    port  (clk : in STD_LOGIC;
-           reset : in STD_LOGIC;
-           wr : in STD_LOGIC;
-           reg1_dr : in STD_LOGIC_VECTOR (4 downto 0);
-           reg2_dr : in STD_LOGIC_VECTOR (4 downto 0);
-           reg_wr : in STD_LOGIC_VECTOR (4 downto 0);
-           data_wr : in STD_LOGIC_VECTOR (31 downto 0);
-           data1_rd : out STD_LOGIC_VECTOR (31 downto 0);
-           data2_rd : out STD_LOGIC_VECTOR (31 downto 0));
+-- component registers --@todo uncomment
+--     port  (clk : in STD_LOGIC;
+--            reset : in STD_LOGIC;
+--            wr : in STD_LOGIC;
+--            reg1_dr : in STD_LOGIC_VECTOR (4 downto 0);
+--            reg2_dr : in STD_LOGIC_VECTOR (4 downto 0);
+--            reg_wr : in STD_LOGIC_VECTOR (4 downto 0);
+--            data_wr : in STD_LOGIC_VECTOR (31 downto 0);
+--            data1_rd : out STD_LOGIC_VECTOR (31 downto 0);
+--            data2_rd : out STD_LOGIC_VECTOR (31 downto 0));
            
-end component;
+-- end component;
 
 --DECLARACION DE SENIALES--
 signal sI_Addr: std_logic_vector(31 downto 0);
@@ -56,13 +56,14 @@ begin
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA IF
 ---------------------------------------------------------------------------------------------------------------
-moveThroughInstMemory: --@todo check
+moveThroughInstMemory: 
 	process(clk)
-begin
+	begin
 	if sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
 	elsif falling_edge(clk) then
-		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 1) --@todo chequear porque en realidad se debe declarar una signal o una variable para hacer esto.
+		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 1);-- + 4 quizas??
+	end if;
 end process moveThroughInstMemory; 
  
 I_Addr <= sI_Addr;
@@ -76,17 +77,17 @@ I_Addr <= sI_Addr;
 -- ETAPA ID
 ---------------------------------------------------------------------------------------------------------------
 -- Instanciacion del banco de registros
-Registers_inst:  registers 
-	Port map (
-			clk => clk, 
-			reset => reset, 
-			wr => RegWrite, 
-			reg1_dr => ID_Instruction(25 downto 21), 
-			reg2_dr => ID_Instruction( 20 downto 16), 
-			reg_wr => WB_reg_wr, 
-			data_wr => WB_data_wr , 
-			data1_rd => ID_data1_rd ,
-			data2_rd => ID_data2_rd ); 
+-- Registers_inst:  registers --@todo uncomment
+-- 	Port map (
+-- 			clk => clk, 
+-- 			reset => reset, 
+-- 			wr => RegWrite, 
+-- 			reg1_dr => ID_Instruction(25 downto 21), 
+-- 			reg2_dr => ID_Instruction( 20 downto 16), 
+-- 			reg_wr => WB_reg_wr, 
+-- 			data_wr => WB_data_wr , 
+-- 			data1_rd => ID_data1_rd ,
+-- 			data2_rd => ID_data2_rd ); 
 
  --notas franco: decodificador
  
