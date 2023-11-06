@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
+use IEEE.NUMERIC_STD.all;
 
 entity processor is
 port(
@@ -59,10 +60,12 @@ begin
 moveThroughInstMemory: 
 	process(clk)
 	begin
-	if sI_Addr = x"00000400" then 
+	if Reset = '1' then
+    	sI_Addr <= x"00000000";
+    elsif sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
 	elsif falling_edge(clk) then
-		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 1);-- + 4 quizas??
+		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);-- + 4 quizas??
 	end if;
 end process moveThroughInstMemory; 
  
