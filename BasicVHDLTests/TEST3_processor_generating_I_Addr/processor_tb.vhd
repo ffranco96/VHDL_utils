@@ -134,15 +134,15 @@ begin
 	process	
 	begin		
 	   Clk <= '0';
-		wait for tper_clk/2;
+		wait for tper_clk/3;
 		Clk <= '1';
-		wait for tper_clk/2; 		
+		wait for tper_clk/3; 		
 	end process;
 	
 	process
 	begin
 		Reset <= '1';
-		wait for tdelay;
+		wait for 10 ns;
 		Reset <= '0';	   
 		wait;
 	end process;  	 
