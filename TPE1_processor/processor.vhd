@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
+use IEEE.NUMERIC_STD.all;
 
 entity processor is
 port(
@@ -25,7 +26,7 @@ architecture processor_arq of processor is
 
 --DECLARACION DE COMPONENTES--
 
-component registers 
+component registers
     port  (clk : in STD_LOGIC;
            reset : in STD_LOGIC;
            wr : in STD_LOGIC;
@@ -40,6 +41,8 @@ end component;
 
 --DECLARACION DE SENIALES--
 signal sI_Addr: std_logic_vector(31 downto 0);
+--signal ID_Instruction: std_logic_vector(25 downto 0);
+
     --ETAPA IF--
 	--if_pc (notas franco)
 
@@ -56,16 +59,21 @@ begin
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA IF
 ---------------------------------------------------------------------------------------------------------------
-moveThroughInstMemory: --@todo check
+moveThroughInstMemory: 
 	process(clk)
-begin
-	if sI_Addr = x"00000400" then 
+	begin
+	if Reset = '1' then
+    	sI_Addr <= x"00000000";--@todo fix the problem that reads twice the first space of memory
+    elsif sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
 	elsif falling_edge(clk) then
-		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 1) --@todo chequear porque en realidad se debe declarar una signal o una variable para hacer esto.
+		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);
+	end if;
 end process moveThroughInstMemory; 
  
 I_Addr <= sI_Addr;
+I_RdStb <= '1'; -- I will always read from this memory. It will never be written.
+I_WrStb <= '0';
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
 --------------------------------------------------------------------------------------------------------------- 
@@ -76,13 +84,13 @@ I_Addr <= sI_Addr;
 -- ETAPA ID
 ---------------------------------------------------------------------------------------------------------------
 -- Instanciacion del banco de registros
-Registers_inst:  registers 
+Registers_inst:  registers
 	Port map (
 			clk => clk, 
 			reset => reset, 
 			wr => RegWrite, 
 			reg1_dr => ID_Instruction(25 downto 21), 
-			reg2_dr => ID_Instruction( 20 downto 16), 
+			reg2_dr => ID_Instruction(20 downto 16), 
 			reg_wr => WB_reg_wr, 
 			data_wr => WB_data_wr , 
 			data1_rd => ID_data1_rd ,
