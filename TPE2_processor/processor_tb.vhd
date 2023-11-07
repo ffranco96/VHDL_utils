@@ -1,22 +1,17 @@
 ---------------------------------------------------------------------------------------------------
 --
--- Title       : Test Bench for procesador
--- Design      : practica_1
--- Author      : alumnoeps
+-- Title       : Test Bench for processor
+-- Design      : processor
+-- Author      : Franco Macen
 -- Company     : eps
 --
 ---------------------------------------------------------------------------------------------------
 --
--- File        : $DSN\src\TestBench\procesador_TB.vhd
--- Generated   : 15/03/2006, 15:43
--- From        : $DSN\src\procesador.vhd
+-- File        : $DSN\src\TestBench\processor_tb.vhd
+-- Generated   : 06/11/2023, 15:43
+-- From        : $DSN\src\processor.vhd
 -- By          : Active-HDL Built-in Test Bench Generator ver. 1.2s
 --
----------------------------------------------------------------------------------------------------
---
--- Description : Automatically generated Test Bench for procesador_tb
---
----------------------------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all; 
