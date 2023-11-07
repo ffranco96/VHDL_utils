@@ -47,6 +47,10 @@ end component;
 --SIGNALS DECLARATION--
 ---------------------------------------------------------------------------------------------------------------
 signal sI_Addr: std_logic_vector(31 downto 0);
+--signal ID_Instruction: std_logic_vector(25 downto 0);
+
+    --ETAPA IF--
+	--if_pc (notas franco)
 
 --IF STAGE--
 
@@ -73,17 +77,17 @@ begin
 moveThroughInstMemory: 
 	process(clk)
 	begin
-	if reset = '1' then
-    	sI_Addr <= x"00000000";
+	if Reset = '1' then
+    	sI_Addr <= x"00000000";--@todo fix the problem that reads twice the first space of memory
     elsif sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
 	elsif falling_edge(clk) then
-		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);-- + 4 quizas??
+		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);
 	end if;
 end process moveThroughInstMemory; 
 
 I_Addr <= sI_Addr;
-I_RdStb <= '1';
+I_RdStb <= '1'; -- I will always read from this memory. It will never be written.
 I_WrStb <= '0';
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
