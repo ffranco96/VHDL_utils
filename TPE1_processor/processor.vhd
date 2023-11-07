@@ -35,8 +35,7 @@ architecture processor_arq of processor is
 --            reg_wr : in STD_LOGIC_VECTOR (4 downto 0);
 --            data_wr : in STD_LOGIC_VECTOR (31 downto 0);
 --            data1_rd : out STD_LOGIC_VECTOR (31 downto 0);
---            data2_rd : out STD_LOGIC_VECTOR (31 downto 0));
-           
+--            data2_rd : out STD_LOGIC_VECTOR (31 downto 0));      
 -- end component;
 
 component control_unit 
@@ -48,7 +47,6 @@ end component;
 ---------------------------------------------------------------------------------------------------------------
 signal sI_Addr: std_logic_vector(31 downto 0);
 --signal ID_Instruction: std_logic_vector(25 downto 0);
-
     --ETAPA IF--
 	--if_pc (notas franco)
 
