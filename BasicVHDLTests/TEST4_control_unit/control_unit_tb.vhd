@@ -34,7 +34,21 @@ begin
 	
 	process
 	begin
+    	op_code<="000000";
+		wait for 10 ns;
     	op_code<="101011";
+		wait for 10 ns;
+        op_code<="000100";
+		wait for 10 ns;
+        op_code<="100011";
+		wait for 10 ns;
+		op_code<="001111";
+		wait for 10 ns;
+		op_code<="001000";
+		wait for 10 ns;
+		op_code<="001100";
+		wait for 10 ns;
+		op_code<="001101";
 		wait for 10 ns;
 		wait;
 	end process;  	 
