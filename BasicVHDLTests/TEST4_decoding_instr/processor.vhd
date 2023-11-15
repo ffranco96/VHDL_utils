@@ -35,7 +35,8 @@ architecture processor_arq of processor is
 --            reg_wr : in STD_LOGIC_VECTOR (4 downto 0);
 --            data_wr : in STD_LOGIC_VECTOR (31 downto 0);
 --            data1_rd : out STD_LOGIC_VECTOR (31 downto 0);
---            data2_rd : out STD_LOGIC_VECTOR (31 downto 0));      
+--            data2_rd : out STD_LOGIC_VECTOR (31 downto 0));
+           
 -- end component;
 
 component control_unit 
@@ -46,9 +47,6 @@ end component;
 --SIGNALS DECLARATION--
 ---------------------------------------------------------------------------------------------------------------
 signal sI_Addr: std_logic_vector(31 downto 0);
---signal ID_Instruction: std_logic_vector(25 downto 0);
-    --ETAPA IF--
-	--if_pc (notas franco)
 
 --IF STAGE--
 
@@ -75,12 +73,12 @@ begin
 moveThroughInstMemory: 
 	process(clk)
 	begin
-	if Reset = '1' then
-    	sI_Addr <= x"00000000";--@todo fix the problem that reads twice the first space of memory
+	if reset = '1' then
+    	sI_Addr <= x"00000000";
     elsif sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
 	elsif falling_edge(clk) then
-		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);
+		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);-- + 4 quizas??
 	end if;
 end process moveThroughInstMemory; 
 
