@@ -15,12 +15,12 @@ use IEEE.NUMERIC_STD.ALL;
 -- control_signals[1]: ALUOp1
 -- control_signals[0]: ALUOp0
 
-entity design is --control_unit
-    Port ( op_code : in STD_LOGIC_VECTOR(5 downto 0);
+entity control_unit is 
+    port ( op_code : in STD_LOGIC_VECTOR(5 downto 0);
            control_signals : out STD_LOGIC_VECTOR (9 downto 0));
-end design; --control_unit
+end control_unit;
 
-architecture control_unit_arq of design is 
+architecture control_unit_arq of control_unit is 
 begin
     control_signals <=  "1001000010" when op_code = "00000000" else -- r type @todo check if for R type will be present this or other 
                         "0100010000" when op_code = x"2b" else -- sw
