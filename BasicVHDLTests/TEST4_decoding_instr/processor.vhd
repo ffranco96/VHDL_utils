@@ -35,23 +35,36 @@ architecture processor_arq of processor is
 --            reg_wr : in STD_LOGIC_VECTOR (4 downto 0);
 --            data_wr : in STD_LOGIC_VECTOR (31 downto 0);
 --            data1_rd : out STD_LOGIC_VECTOR (31 downto 0);
---            data2_rd : out STD_LOGIC_VECTOR (31 downto 0));      
+--            data2_rd : out STD_LOGIC_VECTOR (31 downto 0));
+           
 -- end component;
 
---DECLARACION DE SENIALES--
+component control_unit 
+	port ( op_code : in STD_LOGIC_VECTOR(5 downto 0);
+		   control_signals : out STD_LOGIC_VECTOR (9 downto 0));
+end component;
+---------------------------------------------------------------------------------------------------------------
+--SIGNALS DECLARATION--
+---------------------------------------------------------------------------------------------------------------
 signal sI_Addr: std_logic_vector(31 downto 0);
---signal ID_Instruction: std_logic_vector(25 downto 0);
-    --ETAPA IF--
-	--if_pc (notas franco)
 
-    --ETAPA ID--
-	--id_pc (notas franco)
+--IF STAGE--
 
-    --ETAPA EX--
+--if_pc (notas franco)
 
-    --ETAPA MEM--
-     
-    --ETAPA WB--    
+--IF/ID SEGMENTATION REG--
+signal IF_ID_inst_op_code: std_logic_vector(5 downto 0);
+
+--ID STAGE--
+
+--ID/EX SEGMENTATION REG--
+signal ID_EX_control_signals: std_logic_vector (9 downto 0);
+
+--EX STAGE--
+
+--MEM STAGE--
+	
+--WB STAGE--    
         
 begin 	
 ---------------------------------------------------------------------------------------------------------------
@@ -60,29 +73,26 @@ begin
 moveThroughInstMemory: 
 	process(clk)
 	begin
-	if Reset = '1' then
-    	sI_Addr <= x"00000000";--@todo fix the problem that reads twice the first space of memory
+	if reset = '1' then
+    	sI_Addr <= x"00000000";
     elsif sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
 	elsif falling_edge(clk) then
-		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);
+		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);-- + 4 quizas??
 	end if;
 end process moveThroughInstMemory; 
- 
+
 I_Addr <= sI_Addr;
 I_RdStb <= '1'; -- I will always read from this memory. It will never be written.
 I_WrStb <= '0';
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
 --------------------------------------------------------------------------------------------------------------- 
- 
- 
- 
+IF_ID_inst_op_code <= I_DataIn(31 downto 26); 
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA ID
 ---------------------------------------------------------------------------------------------------------------
--- Instanciacion del banco de registros
--- Registers_inst:  registers --@todo uncomment
+-- Records bank instantiation @todo uncomment
 -- 	Port map (
 -- 			clk => clk, 
 -- 			reset => reset, 
@@ -92,11 +102,14 @@ I_WrStb <= '0';
 -- 			reg_wr => WB_reg_wr, 
 -- 			data_wr => WB_data_wr , 
 -- 			data1_rd => ID_data1_rd ,
--- 			data2_rd => ID_data2_rd ); 
+-- 			data2_rd => ID_data2_rd );  
 
  --notas franco: decodificador
  
-
+ -- Control unit instantiaton
+ Cont_unit_inst: control_unit	
+ 	port map ( 	op_code => IF_ID_inst_op_code,
+	 			control_signals => ID_EX_control_signals );  
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION ID/EX
 ---------------------------------------------------------------------------------------------------------------

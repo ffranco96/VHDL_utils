@@ -1,17 +1,21 @@
 ---------------------------------------------------------------------------------------------------
 --
 -- Title       : Test Bench for processor
--- Design      : processor
--- Author      : Franco Macen
--- Company     : eps
+-- Design      : TPE_2
+-- Author      : Franco Macén
+-- Company     : Untref
 --
 ---------------------------------------------------------------------------------------------------
 --
--- File        : $DSN\src\TestBench\processor_tb.vhd
--- Generated   : 06/11/2023, 15:43
--- From        : $DSN\src\processor.vhd
--- By          : Active-HDL Built-in Test Bench Generator ver. 1.2s
+-- File        : processor_tb.vhd
+-- Generated   : DD/MM/YYYY, HH:MM
+-- From        : procesor.vhd
 --
+---------------------------------------------------------------------------------------------------
+--
+-- Description : Testbench to test MIPS processor.
+--
+---------------------------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all; 
@@ -44,7 +48,7 @@ architecture processor_tb_arq  of processor_tb is
    );
 	end component;
 
-	component Memory
+	component memory
 	generic (
 	   C_ELF_FILENAME     : string;
       C_MEM_SIZE         : integer
@@ -112,19 +116,19 @@ begin
 		DataOut            => I_DataIn
 	);
 	
-	Data_Mem_inst : memory
-	generic map (
-	   C_ELF_FILENAME     => "data",
-     C_MEM_SIZE         => 1024
-   )	
-	port map(
-		Clk                => Clk,			 
-		Addr               => D_Addr,
-		RdStb              => D_RdStb,
-		WrStb              => D_WrStb,
-		DataIn             => D_DataOut,
-		DataOut            => D_DataIn
-	);
+-- 	Data_Mem_inst : memory
+-- 	generic map (
+-- 	   C_ELF_FILENAME     => "data",
+--      C_MEM_SIZE         => 1024
+--    )	
+-- 	port map(
+-- 		Clk                => Clk,			 
+-- 		Addr               => D_Addr,
+-- 		RdStb              => D_RdStb,
+-- 		WrStb              => D_WrStb,
+-- 		DataIn             => D_DataOut,
+-- 		DataOut            => D_DataIn
+-- 	);
 
 	process	
 	begin		
@@ -143,7 +147,3 @@ begin
 	end process;  	 
 
 end processor_tb_arq;
-
-
-
-

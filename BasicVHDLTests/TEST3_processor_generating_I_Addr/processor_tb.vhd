@@ -1,23 +1,3 @@
----------------------------------------------------------------------------------------------------
---
--- Title       : Test Bench for procesador
--- Design      : practica_1
--- Author      : alumnoeps
--- Company     : eps
---
----------------------------------------------------------------------------------------------------
---
--- File        : $DSN\src\TestBench\procesador_TB.vhd
--- Generated   : 15/03/2006, 15:43
--- From        : $DSN\src\procesador.vhd
--- By          : Active-HDL Built-in Test Bench Generator ver. 1.2s
---
----------------------------------------------------------------------------------------------------
---
--- Description : Automatically generated Test Bench for procesador_tb
---
----------------------------------------------------------------------------------------------------
-
 library ieee;
 use ieee.std_logic_1164.all; 
 use IEEE.STD_LOGIC_ARITH.ALL;
@@ -148,7 +128,3 @@ begin
 	end process;  	 
 
 end processor_tb_arq;
-
-
-
-
