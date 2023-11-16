@@ -62,8 +62,12 @@ signal ID_EX_control_signals: std_logic_vector (9 downto 0);
 
 --EX STAGE--
 
+--EX/MEM SEGMENTATION REG--
+signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
 --MEM STAGE--
-	
+
+--MEM/WB SEGMENTATION REG--
+signal MEM_WB_control_signals: std_logic_vector (9 downto 0);
 --WB STAGE--    
         
 begin 	
@@ -77,7 +81,7 @@ moveThroughInstMemory:
     	sI_Addr <= x"00000000";
     elsif sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
-	elsif falling_edge(clk) then
+	elsif rising_edge(clk) then
 		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);-- + 4 quizas??
 	end if;
 end process moveThroughInstMemory; 
@@ -110,6 +114,18 @@ IF_ID_inst_op_code <= I_DataIn(31 downto 26);
  Cont_unit_inst: control_unit	
  	port map ( 	op_code => IF_ID_inst_op_code,
 	 			control_signals => ID_EX_control_signals );  
+
+moveControlSignalsThroughStages: 
+	process(clk)
+	begin
+		if falling_edge(clk) then
+			-- Spread signals of segmentation registers
+			EX_MEM_control_signals <= ID_EX_control_signals;
+
+			MEM_WB_control_signals <= EX_MEM_control_signals;
+		end if;
+
+end process moveControlSignalsThroughStages; 
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION ID/EX
 ---------------------------------------------------------------------------------------------------------------
