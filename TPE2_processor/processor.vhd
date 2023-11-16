@@ -108,7 +108,7 @@ IF_ID_inst_op_code <= I_DataIn(31 downto 26);
  
  -- Control unit instantiaton
  Cont_unit_inst: control_unit	
- 	port map ( 	op_code => IF_ID_inst_op_code, -- @todo later must be modified to a CONT_UNITY_op_code, signal that will be asigned with IF_ID_inst_op_code
+ 	port map ( 	op_code => IF_ID_inst_op_code,
 	 			control_signals => ID_EX_control_signals );  
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION ID/EX
