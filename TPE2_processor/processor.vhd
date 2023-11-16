@@ -24,20 +24,21 @@ end processor;
 
 architecture processor_arq of processor is 
 
---DECLARACION DE COMPONENTES--
+---------------------------------------------------------------------------------------------------------------
+-- COMPONENTS DECLARATION --
+---------------------------------------------------------------------------------------------------------------
 
--- component registers --@todo uncomment
---     port  (clk : in STD_LOGIC;
---            reset : in STD_LOGIC;
---            wr : in STD_LOGIC;
---            reg1_dr : in STD_LOGIC_VECTOR (4 downto 0);
---            reg2_dr : in STD_LOGIC_VECTOR (4 downto 0);
---            reg_wr : in STD_LOGIC_VECTOR (4 downto 0);
---            data_wr : in STD_LOGIC_VECTOR (31 downto 0);
---            data1_rd : out STD_LOGIC_VECTOR (31 downto 0);
---            data2_rd : out STD_LOGIC_VECTOR (31 downto 0));
-           
--- end component;
+component registers
+    port  (clk : in STD_LOGIC;
+           reset : in STD_LOGIC;
+           wr : in STD_LOGIC;
+           reg1_dr : in STD_LOGIC_VECTOR (4 downto 0);
+           reg2_dr : in STD_LOGIC_VECTOR (4 downto 0);
+           reg_wr : in STD_LOGIC_VECTOR (4 downto 0);
+           data_wr : in STD_LOGIC_VECTOR (31 downto 0);
+           data1_rd : out STD_LOGIC_VECTOR (31 downto 0);
+           data2_rd : out STD_LOGIC_VECTOR (31 downto 0));
+end component;
 
 component control_unit 
 	port ( op_code : in STD_LOGIC_VECTOR(5 downto 0);
@@ -75,13 +76,13 @@ begin
 -- ETAPA IF
 ---------------------------------------------------------------------------------------------------------------
 moveThroughInstMemory: 
-	process(clk)
+	process(Clk)
 	begin
 	if reset = '1' then
     	sI_Addr <= x"00000000";
     elsif sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
-	elsif rising_edge(clk) then
+	elsif rising_edge(Clk) then
 		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);-- + 4 quizas??
 	end if;
 end process moveThroughInstMemory; 
@@ -96,29 +97,27 @@ IF_ID_inst_op_code <= I_DataIn(31 downto 26);
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA ID
 ---------------------------------------------------------------------------------------------------------------
--- Records bank instantiation @todo uncomment
--- 	Port map (
--- 			clk => clk, 
--- 			reset => reset, 
--- 			wr => RegWrite, 
--- 			reg1_dr => ID_Instruction(25 downto 21), 
--- 			reg2_dr => ID_Instruction( 20 downto 16), 
--- 			reg_wr => WB_reg_wr, 
--- 			data_wr => WB_data_wr , 
--- 			data1_rd => ID_data1_rd ,
--- 			data2_rd => ID_data2_rd );  
+-- Records bank instantiation
+	Port map (
+			clk => Clk, 
+			reset => reset, 
+			wr => RegWrite, 
+			reg1_dr => ID_Instruction(25 downto 21), 
+			reg2_dr => ID_Instruction( 20 downto 16), 
+			reg_wr => WB_reg_wr, 
+			data_wr => WB_data_wr , 
+			data1_rd => ID_data1_rd ,
+			data2_rd => ID_data2_rd );
 
- --notas franco: decodificador
- 
  -- Control unit instantiaton
  Cont_unit_inst: control_unit	
  	port map ( 	op_code => IF_ID_inst_op_code,
 	 			control_signals => ID_EX_control_signals );  
 
 moveControlSignalsThroughStages: 
-	process(clk)
+	process(Clk)
 	begin
-		if falling_edge(clk) then
+		if falling_edge(Clk) then
 			-- Spread signals of segmentation registers
 			EX_MEM_control_signals <= ID_EX_control_signals;
 
