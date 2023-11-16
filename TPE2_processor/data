@@ -1,4 +1,3 @@
-##notas franco: cada pedazo de dos bits de cada registro se carga en 1 byte de la memoria: +0, +1, +2 , +3 ver vhdl de memorias
 00000001
 00000002
 00000004
