@@ -51,7 +51,7 @@ signal sI_Addr: std_logic_vector(31 downto 0);
 
 --IF STAGE--
 
---if_pc (notas franco)
+--if_pc (notas cris)
 
 --IF/ID SEGMENTATION REG--
 signal IF_ID_instr : std_logic_vector(31 downto 0);
