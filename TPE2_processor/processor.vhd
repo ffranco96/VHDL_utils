@@ -54,23 +54,27 @@ signal sI_Addr: std_logic_vector(31 downto 0);
 --if_pc (notas franco)
 
 --IF/ID SEGMENTATION REG--
-signal IF_ID_inst_op_code: std_logic_vector(5 downto 0);
+signal IF_ID_instr : std_logic_vector(31 downto 0);
+signal IF_ID_instr_op_code: std_logic_vector(5 downto 0); -- @todo quizas se pueda borrar 
 
 --ID STAGE--
 
 --ID/EX SEGMENTATION REG--
 signal ID_EX_control_signals: std_logic_vector (9 downto 0);
+signal ID_EX_instr : std_logic_vector(31 downto 0);
 
 --EX STAGE--
 
 --EX/MEM SEGMENTATION REG--
 signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
+signal EX_MEM_instr : std_logic_vector(31 downto 0);
 --MEM STAGE--
 
 --MEM/WB SEGMENTATION REG--
 signal MEM_WB_control_signals: std_logic_vector (9 downto 0);
+signal MEM_WB_instr : std_logic_vector(31 downto 0);
 --WB STAGE--    
-        
+
 begin 	
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA IF
@@ -93,38 +97,29 @@ I_WrStb <= '0';
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
 --------------------------------------------------------------------------------------------------------------- 
-IF_ID_inst_op_code <= I_DataIn(31 downto 26); 
+IF_ID_instr_op_code <= I_DataIn(31 downto 26);
+IF_ID_instr <= I_DataIn;
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA ID
 ---------------------------------------------------------------------------------------------------------------
--- Records bank instantiation
+-- Registers bank instantiation
+Registers_bank : registers
 	Port map (
 			clk => Clk, 
-			reset => reset, 
-			wr => RegWrite, 
-			reg1_dr => ID_Instruction(25 downto 21), 
-			reg2_dr => ID_Instruction( 20 downto 16), 
-			reg_wr => WB_reg_wr, 
-			data_wr => WB_data_wr , 
-			data1_rd => ID_data1_rd ,
-			data2_rd => ID_data2_rd );
+			reset => Reset, 
+			wr => ID_EX_control_signals(6), 
+			reg1_dr => IF_ID_instr(25 downto 21), -- Reg 1 to read
+			reg2_dr => IF_ID_instr( 20 downto 16), -- Reg 2 to read
+			reg_wr => "00000", -- @todo				-- ??
+			data_wr => x"00000000" , -- @todo		-- Data write
+			data1_rd => open ,	--@todo			-- Read data 1
+			data2_rd => open ); --@todo 			-- Read data 2
 
  -- Control unit instantiaton
  Cont_unit_inst: control_unit	
- 	port map ( 	op_code => IF_ID_inst_op_code,
+ 	port map ( 	op_code => IF_ID_instr_op_code,
 	 			control_signals => ID_EX_control_signals );  
 
-moveControlSignalsThroughStages: 
-	process(Clk)
-	begin
-		if falling_edge(Clk) then
-			-- Spread signals of segmentation registers
-			EX_MEM_control_signals <= ID_EX_control_signals;
-
-			MEM_WB_control_signals <= EX_MEM_control_signals;
-		end if;
-
-end process moveControlSignalsThroughStages; 
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION ID/EX
 ---------------------------------------------------------------------------------------------------------------
@@ -153,5 +148,27 @@ end process moveControlSignalsThroughStages;
 -- ETAPA WB
 ---------------------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------------------
+-- Segmentation Regs / Pipeline : data will be spread through this regs following Clk signal
+---------------------------------------------------------------------------------------------------------------
+moveControlSignalsThroughStages: 
+	process(Clk)
+	begin
+		if falling_edge(Clk) then
+			-- Spread signlas from control unit of segmentation registers
+			EX_MEM_control_signals <= ID_EX_control_signals;
+
+			MEM_WB_control_signals <= EX_MEM_control_signals;
+			-- Spread signals of instructions
+
+			ID_EX_instr <= IF_ID_instr;
+
+			EX_MEM_instr <= ID_EX_instr;
+
+			MEM_WB_instr <= EX_MEM_instr;
+
+		end if;
+
+end process moveControlSignalsThroughStages; 
 
 end processor_arq;
