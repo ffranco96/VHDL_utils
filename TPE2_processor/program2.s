@@ -1,5 +1,3 @@
-#notas franco: en el loop va a haber riesgos de datos y riesgos de control
-
 .data 
 num0: .word 1 # posic 0
 num1: .word 2 # posic 4
@@ -47,7 +45,12 @@ main:
   lui $t2, 2
 loop:
   addi $t3, $t3, 2
+  nop
+  nop
   beq $t3,$t5, loop
+  nop
+  nop
+  nop
   ori $t4, $t5, 313
   andi $t5, $s1, 313
    
