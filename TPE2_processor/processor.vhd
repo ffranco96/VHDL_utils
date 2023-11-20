@@ -55,19 +55,22 @@ signal sI_Addr: std_logic_vector(31 downto 0);
 
 --IF/ID SEGMENTATION REG--
 signal IF_ID_instr : std_logic_vector(31 downto 0);
-signal IF_ID_instr_op_code: std_logic_vector(5 downto 0); -- @todo quizas se pueda borrar 
 
 --ID STAGE--
 
 --ID/EX SEGMENTATION REG--
 signal ID_EX_control_signals: std_logic_vector (9 downto 0);
 signal ID_EX_instr : std_logic_vector(31 downto 0);
+signal ID_EX_extended_imm : std_logic_vector(31 downto 0); -- immediate 16 bytes of I-type instructions
 
 --EX STAGE--
-
+constant valor_reg_1 : std_logic_vector(31 downto 0):= x"00000001"; -- @todo delete
+			
 --EX/MEM SEGMENTATION REG--
 signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
 signal EX_MEM_instr : std_logic_vector(31 downto 0);
+signal EX_MEM_ALU_Res : std_logic_vector(31 downto 0);
+
 --MEM STAGE--
 
 --MEM/WB SEGMENTATION REG--
@@ -77,9 +80,12 @@ signal MEM_WB_instr : std_logic_vector(31 downto 0);
 
 begin 	
 ---------------------------------------------------------------------------------------------------------------
+--BODY--
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 -- ETAPA IF
 ---------------------------------------------------------------------------------------------------------------
-moveThroughInstMemory: 
+moveThroughInstMemory: -- @todo can be done as a flip flop
 	process(Clk)
 	begin
 	if reset = '1' then
@@ -87,7 +93,7 @@ moveThroughInstMemory:
     elsif sI_Addr = x"00000400" then 
 		sI_Addr <= x"00000000";
 	elsif rising_edge(Clk) then
-		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);-- + 4 quizas??
+		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);
 	end if;
 end process moveThroughInstMemory; 
 
@@ -97,7 +103,6 @@ I_WrStb <= '0';
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
 --------------------------------------------------------------------------------------------------------------- 
-IF_ID_instr_op_code <= I_DataIn(31 downto 26);
 IF_ID_instr <= I_DataIn;
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA ID
@@ -117,35 +122,36 @@ Registers_bank : registers
 
  -- Control unit instantiaton
  Cont_unit_inst: control_unit	
- 	port map ( 	op_code => IF_ID_instr_op_code,
+ 	port map ( 	op_code => IF_ID_instr(31 downto 26),
 	 			control_signals => ID_EX_control_signals );  
 
+-- Sign extension
+ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0);
 ---------------------------------------------------------------------------------------------------------------
--- REGISTRO DE SEGMENTACION ID/EX
+-- ID/EX SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
 -- proceso sensible al clock que tenga "todos los registros de segmentacion", en realidad los regs que correspnodan a id/ex (es uno solo creo)
  
 ---------------------------------------------------------------------------------------------------------------
--- ETAPA EX
----------------------------------------------------------------------------------------------------------------
-  -- notas franco: instanciar ALU sumador, para direccion de branch, sumador para branch
-
----------------------------------------------------------------------------------------------------------------
--- REGISTRO DE SEGMENTACION EX/MEM
----------------------------------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------------------------------
--- ETAPA MEM
+-- EX STAGE
 ---------------------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------------------
--- REGISTRO DE SEGMENTACION MEM/WB
+-- EX/MEM SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
 
 
 ---------------------------------------------------------------------------------------------------------------
--- ETAPA WB
+-- MEM STAGE
+---------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------
+-- MEM/WB SEGMENTATION REG
+---------------------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------------------
+-- WB STAGE
 ---------------------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------------------
@@ -166,6 +172,11 @@ moveControlSignalsThroughStages:
 			EX_MEM_instr <= ID_EX_instr;
 
 			MEM_WB_instr <= EX_MEM_instr;
+			
+			-- ETAPA EX:
+			-- @todo: instanciar ALU sumador, para direccion de branch, sumador para branch
+			EX_MEM_ALU_Res <= valor_reg_1 + ID_EX_extended_imm ; --when ID_EX_control_signals() else @todo que condiciones deben darse para identificar un lw 
+			
 
 		end if;
 
