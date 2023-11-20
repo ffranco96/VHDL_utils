@@ -26,7 +26,7 @@ with Control select
       A + B when "010",                    -- Addition
       A - B when "110",                    -- Substraction
       lwrThan when "111",                  -- Lower than @todo Extenderlo a  8 bits o la cant que sea
-      A sll 16 when "100",                 -- Shift left logical of 16 bits
+      B sll 16 when "100",                 -- Shift left logical of 16 bits
       (others => '0') when others;
   sZero <= '1' when sResult = x"00000000" else '0';
 Result <= sResult;
