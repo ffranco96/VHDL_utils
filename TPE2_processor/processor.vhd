@@ -117,6 +117,10 @@ end process moveThroughInstMemory;
 I_Addr <= sI_Addr;
 I_RdStb <= '1';
 I_WrStb <= '0';
+
+D_Addr <= EX_MEM_ALU_Res - 1; -- @todo resolver. ASi anda, pero ese menos esta mal.
+D_RdStb <= EX_MEM_control_signals(5);-- MemRead
+D_WrStb <= EX_MEM_control_signals(4); -- MemWrite
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
 --------------------------------------------------------------------------------------------------------------- 

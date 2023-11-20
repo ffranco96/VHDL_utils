@@ -112,19 +112,19 @@ begin
 		DataOut            => I_DataIn
 	);
 	
--- 	Data_Mem_inst : memory
--- 	generic map (
--- 	   C_ELF_FILENAME     => "data",
---      C_MEM_SIZE         => 1024
---    )	
--- 	port map(
--- 		Clk                => Clk,			 
--- 		Addr               => D_Addr,
--- 		RdStb              => D_RdStb,
--- 		WrStb              => D_WrStb,
--- 		DataIn             => D_DataOut,
--- 		DataOut            => D_DataIn
--- 	);
+ 	Data_Mem_inst : memory
+ 	generic map (
+ 	   C_ELF_FILENAME     => "data",
+      C_MEM_SIZE         => 1024
+    )	
+ 	port map(
+ 		Clk                => Clk,			 
+ 		Addr               => D_Addr,
+ 		RdStb              => D_RdStb,
+ 		WrStb              => D_WrStb,
+ 		DataIn             => D_DataOut,
+ 		DataOut            => D_DataIn
+ 	);
 
 	process	
 	begin		
