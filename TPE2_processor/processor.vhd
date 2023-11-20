@@ -64,6 +64,7 @@ signal sI_Addr: std_logic_vector(31 downto 0);
 
 --IF/ID SEGMENTATION REG--
 signal IF_ID_instr : std_logic_vector(31 downto 0);
+signal IF_ID_pc4 : std_logic_vector(31 downto 0);
 
 --ID STAGE--
 
@@ -73,14 +74,18 @@ signal ID_EX_instr : std_logic_vector(31 downto 0);
 signal ID_EX_extended_imm : std_logic_vector(31 downto 0); -- immediate 16 bytes of I-type instructions
 signal ID_EX_read_data_1 : std_logic_vector(31 downto 0); -- @todo assign here Read data 1 from registers bank, and assign to input A of ALU
 signal ID_EX_read_data_2 : std_logic_vector(31 downto 0);
+signal ID_EX_pc4 : std_logic_vector(31 downto 0); -- PC + 4 
 
 --EX STAGE--
 signal EX_Mux_input_B_ALU : std_logic_vector(31 downto 0);
-			
+signal ALU_Control_Res: std_logic_vector(2 downto 0);
+
 --EX/MEM SEGMENTATION REG--
 signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
 signal EX_MEM_instr : std_logic_vector(31 downto 0);
 signal EX_MEM_ALU_Res : std_logic_vector(31 downto 0); --@todo assign alu res here 
+signal EX_MEM_ALU_Zero : std_Logic;
+signal EX_MEM_pc4_extend : std_logic_vector(31 downto 0); --PC + 4 + (extend shift left 2)
 
 --MEM STAGE--
 
@@ -151,6 +156,8 @@ ID_EX_read_data_1 <= x"00000001";--@todo temporary just for test
 
 
 -- @todo: instanciar ALU sumador,--@todo temporary just for test
+EX_MEM_pc4_extend <= ID_EX_extended_imm sll 2 + ID_EX_pc4;
+
 EX_Mux_input_B_ALU <= ID_EX_extended_imm when ID_EX_control_signals(8)='1' else
  		               ID_EX_read_data_2 when ID_EX_control_signals(8) = '0' else  --@todo Assign read data 2 from registers here :
 					   x"00000000";
@@ -165,11 +172,14 @@ ALU_Control_Res <= "010" when ID_EX_control_signals(2 downto 0) = "000" else    
 					"100" when ID_EX_control_signals(2 downto 0) = "101" else                   -- LUI :    op alu shift left
 					"001" when ID_EX_control_signals(2 downto 0) = "110";                       -- Ori :    op alu or
 
-ALU_Zero_Res <= Zero;
+--ALU instantiation
+Alu_inst: ALU	
+    port map (A <= ID_EX_read_data_1(31 downto 0),          -- Operator A 
+	                B <= EX_Mux_input_B_ALU(31 DOWNTO 0),   -- Operator B
+                    Control <= ALU_Control_Res(2 downto 0), -- Control
+                    Result => EX_MEM_ALU_Res(31 downto 0),  -- Result
+                    Zero=> EX_MEM_ALU_Zero );                -- Zero
 
--- AND para Branch
-Branch_AND_Res <= '1' when ID_EX_control_signals(3) = '1' and ALU_Zero_Res = '1' else
-	                '0';
 --------------------------------------------------------------------------------------------------------------
 -- EX/MEM SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
