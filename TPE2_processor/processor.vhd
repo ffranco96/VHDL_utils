@@ -62,14 +62,16 @@ signal IF_ID_instr : std_logic_vector(31 downto 0);
 signal ID_EX_control_signals: std_logic_vector (9 downto 0);
 signal ID_EX_instr : std_logic_vector(31 downto 0);
 signal ID_EX_extended_imm : std_logic_vector(31 downto 0); -- immediate 16 bytes of I-type instructions
+signal ID_EX_read_data_1 : std_logic_vector(31 downto 0); -- @todo assign here Read data 1 from registers bank, and assign to input A of ALU
+--signal ID_EX_read_data_2 : std_logic_vector(31 downto 0);
 
 --EX STAGE--
-constant valor_reg_1 : std_logic_vector(31 downto 0):= x"00000001"; -- @todo delete
+signal EX_Mux_input_B_ALU : std_logic_vector(31 downto 0);
 			
 --EX/MEM SEGMENTATION REG--
 signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
 signal EX_MEM_instr : std_logic_vector(31 downto 0);
-signal EX_MEM_ALU_Res : std_logic_vector(31 downto 0);
+signal EX_MEM_ALU_Res : std_logic_vector(31 downto 0); --@todo assign alu res here 
 
 --MEM STAGE--
 
@@ -135,8 +137,14 @@ ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0);
 ---------------------------------------------------------------------------------------------------------------
 -- EX STAGE
 ---------------------------------------------------------------------------------------------------------------
+ID_EX_read_data_1 <= x"00000001";--@todo temporary just for test
 
----------------------------------------------------------------------------------------------------------------
+-- @todo: instanciar ALU sumador,--@todo temporary just for test
+EX_Mux_input_B_ALU <= ID_EX_extended_imm when ID_EX_control_signals(8)='1' else
+-- 			@todo Assign read data 2 from registers here : ID_EX_read_data_2 when ID_EX_control_signals(8) = '0' else 
+					   x"00000000";		
+
+--------------------------------------------------------------------------------------------------------------
 -- EX/MEM SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
 
@@ -175,7 +183,7 @@ moveControlSignalsThroughStages:
 			
 			-- ETAPA EX:
 			-- @todo: instanciar ALU sumador, para direccion de branch, sumador para branch
-			EX_MEM_ALU_Res <= valor_reg_1 + ID_EX_extended_imm ; --when ID_EX_control_signals() else @todo que condiciones deben darse para identificar un lw 
+			EX_MEM_ALU_Res <= ID_EX_read_data_1 + EX_Mux_input_B_ALU  ;
 			
 
 		end if;
