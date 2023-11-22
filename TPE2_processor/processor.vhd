@@ -93,16 +93,20 @@ signal EX_MEM_pc4_extend : std_logic_vector(31 downto 0); --PC + 4 + (extend shi
 --MEM/WB SEGMENTATION REG--
 signal MEM_WB_control_signals: std_logic_vector (9 downto 0);
 signal MEM_WB_instr : std_logic_vector(31 downto 0);
+signal MEM_WB_ALU_Res : std_logic_vector(31 downto 0);
+signal MEM_WB_Data_Mem_In : std_logic_vector(31 downto 0); 
 --WB STAGE--    
+signal WB_Mux_Res : std_logic_vector(31 downto 0);
 
 begin 	
 ---------------------------------------------------------------------------------------------------------------
---BODY--
+--Combinational--
 ---------------------------------------------------------------------------------------------------------------
+
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA IF
 ---------------------------------------------------------------------------------------------------------------
-moveThroughInstMemory: -- @todo can be done as a flip flop
+moveThroughInstMemory: -- @todo can be done as a flip flop. Move to sequential
 	process(Clk)
 	begin
 	if reset = '1' then
@@ -208,6 +212,12 @@ Alu_inst: ALU
 -- WB STAGE
 ---------------------------------------------------------------------------------------------------------------
 
+WB_Mux_Res <= D_DataIn when MEM_WB_control_signals(7)='1' 		else 	-- MemToReg
+			EX_MEM_ALU_Res when MEM_WB_control_signals(7)='0' 	else 
+			x"00000000";
+
+---------------------------------------------------------------------------------------------------------------
+-- SEQUENTIAL
 ---------------------------------------------------------------------------------------------------------------
 -- Segmentation Regs / Pipeline : data will be spread through this regs following Clk signal
 ---------------------------------------------------------------------------------------------------------------
@@ -231,7 +241,12 @@ moveControlSignalsThroughStages:
 			-- @todo: instanciar ALU sumador, para direccion de branch, sumador para branch
 			EX_MEM_ALU_Res <= ID_EX_read_data_1 + EX_Mux_input_B_ALU  ;
 			
+			-- ETAPA MEM
+			MEM_WB_Data_Mem_In <= D_DataIn;
 
+			MEM_WB_ALU_Res <= EX_MEM_ALU_Res;
+
+			
 		end if;
 
 end process moveControlSignalsThroughStages; 
