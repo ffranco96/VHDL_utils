@@ -31,5 +31,5 @@ with Control select
   sZero <= '1' when sResult = x"00000000" else '0';
 Result <= sResult;
 Zero <= sZero;
---Zero <= '1' when sRes = (others => '0') else '0'; @todoFalta ver como comparar qe sean todos cero, se puede sino usar un process aunque es algo largo. Usando un for.
+
 end behavioural;

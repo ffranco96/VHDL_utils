@@ -79,6 +79,7 @@ signal ID_EX_pc4 : std_logic_vector(31 downto 0); -- PC + 4
 --EX STAGE--
 signal EX_Mux_input_B_ALU : std_logic_vector(31 downto 0);
 signal ALU_Control_Res: std_logic_vector(2 downto 0);
+signal Alu_TYPE_R: std_logic_vector(2 downto 0);
 
 --EX/MEM SEGMENTATION REG--
 signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
@@ -162,13 +163,18 @@ EX_Mux_input_B_ALU <= ID_EX_extended_imm when ID_EX_control_signals(8)='1' else
  		               ID_EX_read_data_2 when ID_EX_control_signals(8) = '0' else  --@todo Assign read data 2 from registers here :
 					   x"00000000";
 
-
+-- Señal que recibe Instrucciones (5 down to 0) para Alu_control  
+Alu_TYPE_R <= "010" when ID_EX_instr(5 downto 0) = "100000" else                    -- Type_R func add
+                "110" when ID_EX_instr(5 downto 0) = "100010" else                  -- Type_R func substraction
+                "000" when ID_EX_instr(5 downto 0) = "100100" else                  -- Type_R func and
+                "111" when ID_EX_instr(5 downto 0) = "101010" else                  -- Type_R func slt
+                "001" when ID_EX_instr(5 downto 0) = "100101";                      -- Type_R func or
 
 -- Alu control, recibe de Control_unit :control_signals					   
 ALU_Control_Res <= "010" when ID_EX_control_signals(2 downto 0) = "000" else                    -- lw, sw : op alu add
-					ID_EX_instr(5 downto 0)	when ID_EX_control_signals(2 downto 0) = "010" else -- R-type
+					Alu_TYPE_R	when ID_EX_control_signals(2 downto 0) = "010" else             -- R-type
                     "110" when ID_EX_control_signals(2 downto 0) = "001" else                   -- Beq :    op alu substraction
-					"000" when ID_EX_control_signals(2 downto 0) = "100" else                   -- Andi :   op alu add
+					"000" when ID_EX_control_signals(2 downto 0) = "100" else                   -- Andi :   op alu and
 					"100" when ID_EX_control_signals(2 downto 0) = "101" else                   -- LUI :    op alu shift left
 					"001" when ID_EX_control_signals(2 downto 0) = "110";                       -- Ori :    op alu or
 
