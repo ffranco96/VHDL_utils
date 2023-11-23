@@ -67,6 +67,7 @@ signal IF_ID_instr : std_logic_vector(31 downto 0);
 signal IF_ID_pc4 : std_logic_vector(31 downto 0);
 
 --ID STAGE--
+signal ID_WB_Res : std_logic_vector (31 downto 0);
 
 --ID/EX SEGMENTATION REG--
 signal ID_EX_control_signals: std_logic_vector (9 downto 0);
@@ -111,9 +112,7 @@ moveThroughInstMemory: -- @todo can be done as a flip flop. Move to sequential
 	begin
 	if reset = '1' then
     	sI_Addr <= x"00000000";
-    elsif sI_Addr = x"00000400" then 
-		sI_Addr <= x"00000000";
-	elsif rising_edge(Clk) then
+    elsif rising_edge(Clk) then
 		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);
 	end if;
 end process moveThroughInstMemory; 
@@ -122,13 +121,12 @@ I_Addr <= sI_Addr;
 I_RdStb <= '1';
 I_WrStb <= '0';
 
-D_Addr <= EX_MEM_ALU_Res - 1; -- @todo resolver. ASi anda, pero ese menos esta mal.
+D_Addr <= EX_MEM_ALU_Res;
 D_RdStb <= EX_MEM_control_signals(5);-- MemRead
 D_WrStb <= EX_MEM_control_signals(4); -- MemWrite
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
 --------------------------------------------------------------------------------------------------------------- 
-IF_ID_instr <= I_DataIn;
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA ID
 ---------------------------------------------------------------------------------------------------------------
@@ -140,10 +138,10 @@ Registers_bank : registers
 			wr => ID_EX_control_signals(6), 
 			reg1_dr => IF_ID_instr(25 downto 21), -- Reg 1 to read
 			reg2_dr => IF_ID_instr( 20 downto 16), -- Reg 2 to read
-			reg_wr => "00000", -- @todo				-- ??
-			data_wr => x"00000000" , -- @todo		-- Data write
-			data1_rd => open ,	--@todo			-- Read data 1
-			data2_rd => open ); --@todo 			-- Read data 2
+			reg_wr => "00000", -- @todo				-- Dir of the register to be written
+			data_wr => ID_WB_Res , -- @todo		-- Data to be written
+			data1_rd => ID_EX_Read_data_1 ,			-- Read data 1
+			data2_rd => ID_EX_Read_data_2 ); 		-- Read data 2
 
  -- Control unit instantiaton
  Cont_unit_inst: control_unit	
@@ -155,12 +153,9 @@ ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0);
 ---------------------------------------------------------------------------------------------------------------
 -- ID/EX SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
--- proceso sensible al clock que tenga "todos los registros de segmentacion", en realidad los regs que correspnodan a id/ex (es uno solo creo)
- 
 ---------------------------------------------------------------------------------------------------------------
 -- EX STAGE
 ---------------------------------------------------------------------------------------------------------------
-ID_EX_read_data_1 <= x"00000001";--@todo temporary just for test
 
 
 
@@ -197,22 +192,17 @@ Alu_inst: ALU
 --------------------------------------------------------------------------------------------------------------
 -- EX/MEM SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
-
-
 ---------------------------------------------------------------------------------------------------------------
 -- MEM STAGE
 ---------------------------------------------------------------------------------------------------------------
-
 ---------------------------------------------------------------------------------------------------------------
 -- MEM/WB SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
-
-
 ---------------------------------------------------------------------------------------------------------------
 -- WB STAGE
 ---------------------------------------------------------------------------------------------------------------
 
-WB_Mux_Res <= D_DataIn when MEM_WB_control_signals(7)='1' 		else 	-- MemToReg
+WB_Mux_Res <= MEM_WB_Data_Mem_In when MEM_WB_control_signals(7)='1' 		else 	-- MemToReg
 			EX_MEM_ALU_Res when MEM_WB_control_signals(7)='0' 	else 
 			x"00000000";
 
@@ -224,28 +214,33 @@ WB_Mux_Res <= D_DataIn when MEM_WB_control_signals(7)='1' 		else 	-- MemToReg
 moveControlSignalsThroughStages: 
 	process(Clk)
 	begin
-		if falling_edge(Clk) then
+		if rising_edge(Clk) then
 			-- Spread signlas from control unit of segmentation registers
 			EX_MEM_control_signals <= ID_EX_control_signals;
 
 			MEM_WB_control_signals <= EX_MEM_control_signals;
 			-- Spread signals of instructions
-
+			-- IF STAGE
+			IF_ID_instr <= I_DataIn;
+			
+			-- ID STAGE
 			ID_EX_instr <= IF_ID_instr;
 
+			-- EX MEM STAGE
 			EX_MEM_instr <= ID_EX_instr;
 
-			MEM_WB_instr <= EX_MEM_instr;
+			MEM_WB_instr <= EX_MEM_instr; --@todo
 			
-			-- ETAPA EX:
+			-- EX STAGE: 
 			-- @todo: instanciar ALU sumador, para direccion de branch, sumador para branch
 			EX_MEM_ALU_Res <= ID_EX_read_data_1 + EX_Mux_input_B_ALU  ;
 			
-			-- ETAPA MEM
+			-- MEM STAGE:
 			MEM_WB_Data_Mem_In <= D_DataIn;
 
 			MEM_WB_ALU_Res <= EX_MEM_ALU_Res;
-
+			
+			ID_WB_Res <= WB_Mux_Res;
 			
 		end if;
 
