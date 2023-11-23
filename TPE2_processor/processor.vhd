@@ -136,7 +136,7 @@ Registers_bank : registers
 	Port map (
 			clk => Clk, 
 			reset => Reset, 
-			wr => ID_EX_control_signals(6), 
+			wr => MEM_WB_control_signals(6), 		--@todo quizas mas adelante haya que poner un mux aca
 			reg1_dr => IF_ID_instr(25 downto 21), 	-- Reg 1 to read
 			reg2_dr => IF_ID_instr( 20 downto 16), 	-- Reg 2 to read
 			reg_wr => MEM_WB_instr(25 downto 21), 	-- Dir of the register to be written
