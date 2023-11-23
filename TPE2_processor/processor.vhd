@@ -42,7 +42,9 @@ end component;
 
 component control_unit 
 	port ( op_code : in STD_LOGIC_VECTOR(5 downto 0);
-		   control_signals : out STD_LOGIC_VECTOR (9 downto 0));
+		   control_signals : out STD_LOGIC_VECTOR (9 downto 0);
+		   clk : in std_logic
+		);
 end component;
 
 component ALU 
@@ -67,7 +69,6 @@ signal IF_ID_instr : std_logic_vector(31 downto 0);
 signal IF_ID_pc4 : std_logic_vector(31 downto 0);
 
 --ID STAGE--
-signal ID_WB_Res : std_logic_vector (31 downto 0);
 
 --ID/EX SEGMENTATION REG--
 signal ID_EX_control_signals: std_logic_vector (9 downto 0);
@@ -136,17 +137,19 @@ Registers_bank : registers
 			clk => Clk, 
 			reset => Reset, 
 			wr => ID_EX_control_signals(6), 
-			reg1_dr => IF_ID_instr(25 downto 21), -- Reg 1 to read
-			reg2_dr => IF_ID_instr( 20 downto 16), -- Reg 2 to read
-			reg_wr => "00000", -- @todo				-- Dir of the register to be written
-			data_wr => ID_WB_Res , -- @todo		-- Data to be written
+			reg1_dr => IF_ID_instr(25 downto 21), 	-- Reg 1 to read
+			reg2_dr => IF_ID_instr( 20 downto 16), 	-- Reg 2 to read
+			reg_wr => MEM_WB_instr(25 downto 21), 	-- Dir of the register to be written
+			data_wr => WB_Mux_Res , 				-- Data to be written
 			data1_rd => ID_EX_Read_data_1 ,			-- Read data 1
 			data2_rd => ID_EX_Read_data_2 ); 		-- Read data 2
 
  -- Control unit instantiaton
  Cont_unit_inst: control_unit	
  	port map ( 	op_code => IF_ID_instr(31 downto 26),
-	 			control_signals => ID_EX_control_signals );  
+	 			control_signals => ID_EX_control_signals,
+				clk => Clk
+				);  
 
 -- Sign extension
 ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0);
@@ -239,8 +242,6 @@ moveControlSignalsThroughStages:
 			MEM_WB_Data_Mem_In <= D_DataIn;
 
 			MEM_WB_ALU_Res <= EX_MEM_ALU_Res;
-			
-			ID_WB_Res <= WB_Mux_Res;
 			
 		end if;
 
