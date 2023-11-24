@@ -17,12 +17,15 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity control_unit is 
     port ( op_code : in STD_LOGIC_VECTOR(5 downto 0);
-           control_signals : out STD_LOGIC_VECTOR (9 downto 0));
+           control_signals : out STD_LOGIC_VECTOR (9 downto 0);
+           clk : in std_logic
+        );
 end control_unit;
 
 architecture control_unit_arq of control_unit is 
-begin
-    control_signals <=  "1001000010" when op_code = "00000000" else -- r type @todo check if for R type will be present this or other 
+        signal s_control_signals : std_logic_vector(9 downto 0);
+    begin
+    s_control_signals <=  "1001000010" when op_code = "00000000" else -- r type @todo check if for R type will be present this or other 
                         "0100010000" when op_code = x"2b" else -- sw
                         "0000001001" when op_code = x"4" else -- beq
                         "0111100000" when op_code = x"23" else -- lw
@@ -31,5 +34,6 @@ begin
                         "0101000100" when op_code = x"C" else -- andi
                         "0101000101" when op_code = x"D" else  -- ori
                         "0000000000";                         --nop
-
+    control_signals <= s_control_signals when rising_edge(clk) else
+                    control_signals;
 end control_unit_arq;

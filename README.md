@@ -16,3 +16,6 @@ This ALU manages the next operations:
 If it's neccessary, modify types to integer and make the corresponding tests.
 ## Features to add
 - Add overflow flag: V= (SA)*(SB)*/(SS) + /(SA)*/(SB)*(SS), being V: overflow flag, SA: MSB of A, etc.
+
+## Schematic of MIPS processor
+![Schematic of processor with signals names](MIPS_macen_marrone.png)

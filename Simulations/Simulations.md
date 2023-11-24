@@ -9,3 +9,9 @@ Added cases of comparations: A greater than B, equals B, lower than B.
 
 ## Simulation 4:
 Testing overflow using unsigned operads.
+
+## Simulation_load_word_complete
+First simulation of load word instruction datapath.
+
+## Simulation_load_word_complete_2
+Second simulation ofl oad word instruction while the ALU hasn't been integrated yet. 
