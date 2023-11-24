@@ -30,7 +30,7 @@ architecture control_unit_arq of control_unit is
                         "0000001001" when op_code = x"4" else -- beq
                         "0111100000" when op_code = x"23" else -- lw
                         "0101000110" when op_code = x"F" else -- lui
-                        "0101000000" when op_code = x"8" else -- addi
+                        "0101000111" when op_code = x"8" else -- addi
                         "0101000100" when op_code = x"C" else -- andi
                         "0101000101" when op_code = x"D" else  -- ori
                         "0000000000";                         --nop
