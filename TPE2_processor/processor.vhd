@@ -99,8 +99,10 @@ signal MEM_WB_control_signals: std_logic_vector (9 downto 0);
 signal MEM_WB_instr : std_logic_vector(31 downto 0);
 signal MEM_WB_ALU_Res : std_logic_vector(31 downto 0);
 signal MEM_WB_Data_Mem_In : std_logic_vector(31 downto 0); 
+
 --WB STAGE--    
 signal WB_Mux_Res : std_logic_vector(31 downto 0);
+signal WB_dest_reg : std_logic_vector(4 downto 0);
 
 begin 	
 ---------------------------------------------------------------------------------------------------------------
@@ -133,6 +135,10 @@ D_WrStb <= EX_MEM_control_signals(4); -- MemWrite
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA ID
 ---------------------------------------------------------------------------------------------------------------
+-- Mux to set destination register depending of instr type
+WB_dest_reg <= 	MEM_WB_instr(15 downto 11) when MEM_WB_control_signals(2 downto 0) = "010" else -- R-Type
+					MEM_WB_instr(20 downto 16); 													-- Others
+
 -- Registers bank instantiation
 Registers_bank : registers
 	Port map (
@@ -141,7 +147,7 @@ Registers_bank : registers
 			wr => MEM_WB_control_signals(6), 		--@todo quizas mas adelante haya que poner un mux aca
 			reg1_dr => IF_ID_instr(25 downto 21), 	-- Reg 1 to read
 			reg2_dr => IF_ID_instr( 20 downto 16), 	-- Reg 2 to read
-			reg_wr => MEM_WB_instr(25 downto 21), 	-- Dir of the register to be written
+			reg_wr => WB_dest_reg, 					-- Dir of the register to be written
 			data_wr => WB_Mux_Res , 				-- Data to be written
 			data1_rd => ID_EX_Read_data_1 ,			-- Read data 1
 			data2_rd => ID_EX_Read_data_2 ); 		-- Read data 2
