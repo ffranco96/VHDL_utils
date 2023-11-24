@@ -201,12 +201,12 @@ EX_Mux_input_B_ALU <= ID_EX_extended_imm when ID_EX_control_signals(8)='1' else
 ---------------------------------------------------------------------------------------------------------------
 -- MEM/WB SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
+MEM_WB_ALU_Res <= EX_MEM_ALU_Res;
 ---------------------------------------------------------------------------------------------------------------
 -- WB STAGE
 ---------------------------------------------------------------------------------------------------------------
-
 WB_Mux_Res <= MEM_WB_Data_Mem_In when MEM_WB_control_signals(7)='1' 		else 	-- MemToReg
-			EX_MEM_ALU_Res when MEM_WB_control_signals(7)='0' 	else 
+			MEM_WB_ALU_Res when MEM_WB_control_signals(7)='0' 	else 
 			x"00000000";
 
 ---------------------------------------------------------------------------------------------------------------
@@ -240,8 +240,6 @@ moveControlSignalsThroughStages:
 			
 			-- MEM STAGE:
 			MEM_WB_Data_Mem_In <= D_DataIn;
-
-			MEM_WB_ALU_Res <= EX_MEM_ALU_Res;
 			
 		end if;
 
