@@ -14,9 +14,9 @@ entity ALU is
 end ALU;
 
 architecture behavioural of ALU is
-signal lwrThan:   std_ulogic_vector(31 downto 0);
+signal lwrThan:   std_logic_vector(31 downto 0);
 signal sResult:   std_logic_vector(31 downto 0);
-signal sZero:     std_ulogic;
+signal sZero:     std_logic;
 begin
 
 lwrThan <= x"00000001" when A < B else x"00000000";
