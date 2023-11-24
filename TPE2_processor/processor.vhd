@@ -185,9 +185,9 @@ ALU_Control_Res <= "010" when ID_EX_control_signals(2 downto 0) = "000" else    
 					Alu_TYPE_R	when ID_EX_control_signals(2 downto 0) = "010" else             -- R-type
                     "110" when ID_EX_control_signals(2 downto 0) = "001" else                   -- Beq :    op alu substraction
 					"000" when ID_EX_control_signals(2 downto 0) = "100" else                   -- Andi :   op alu and
-					"100" when ID_EX_control_signals(2 downto 0) = "101" else                   -- LUI :    op alu shift left
-					"001" when ID_EX_control_signals(2 downto 0) = "110";                       -- Ori :    op alu or
-
+					"100" when ID_EX_control_signals(2 downto 0) = "110" else                   -- LUI :    op alu shift left
+					"001" when ID_EX_control_signals(2 downto 0) = "101" else                   -- Ori :    op alu or
+					"010" when ID_EX_control_signals(2 downto 0) = "111";						-- Addi :  	op alu add
 --ALU instantiation
 Alu_inst: ALU	
     port map (		A => ID_EX_read_data_1(31 downto 0),        -- Operator A 
