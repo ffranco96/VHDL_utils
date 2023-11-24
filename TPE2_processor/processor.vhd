@@ -69,8 +69,8 @@ signal IF_ID_instr : std_logic_vector(31 downto 0);
 signal IF_ID_pc4 : std_logic_vector(31 downto 0);
 
 --ID STAGE--
-signal EX_read_data_1 : std_logic_vector(31 downto 0);
-signal EX_read_data_2 : std_logic_vector(31 downto 0);
+signal ID_read_data_1 : std_logic_vector(31 downto 0);
+signal ID_read_data_2 : std_logic_vector(31 downto 0);
 
 --ID/EX SEGMENTATION REG--
 signal ID_EX_control_signals: std_logic_vector (9 downto 0);
@@ -97,7 +97,8 @@ signal EX_MEM_add_pc4_inm : std_logic_vector(31 downto 0); --PC + 4 + (inmediate
 signal EX_MEM_read_data_2 : std_logic_vector(31 downto 0);
 
 --MEM STAGE--
-
+signal PCSrc : std_logic;
+signal Branch : std_logic;
 --MEM/WB SEGMENTATION REG--
 signal MEM_WB_control_signals: std_logic_vector (9 downto 0);
 signal MEM_WB_instr : std_logic_vector(31 downto 0);
@@ -124,8 +125,11 @@ moveThroughInstMemory: -- @todo can be done as a flip flop. Move to sequential
     elsif rising_edge(Clk) then
 		IF_ID_pc4 <= std_logic_vector(unsigned(IF_ID_pc4) + 4);
 	end if;
-end process moveThroughInstMemory; 
-sI_Addr <= EX_MEM_add_pc4_inm when -- pcsrc =1 else IF_ID_pc4 when pcsrc 0 else x00000000
+end process moveThroughInstMemory;
+
+sI_Addr <= EX_MEM_add_pc4_inm when PCSrc = '1' else
+	            IF_ID_pc4 when PCSrc 0 else 
+				x"00000000";
 I_Addr <= sI_Addr;
 I_RdStb <= '1';
 I_WrStb <= '0';
@@ -153,8 +157,8 @@ Registers_bank : registers
 			reg2_dr => IF_ID_instr( 20 downto 16), 	-- Reg 2 to read
 			reg_wr => WB_dest_reg, 					-- Dir of the register to be written
 			data_wr => WB_Mux_Res , 				-- Data to be written
-			data1_rd => EX_read_data_1 ,			-- Read data 1
-			data2_rd => EX_read_data_2 );	 		-- Read data 2
+			data1_rd => ID_read_data_1 ,			-- Read data 1
+			data2_rd => ID_read_data_2 );	 		-- Read data 2
 
  -- Control unit instantiaton
  Cont_unit_inst: control_unit	
@@ -209,6 +213,9 @@ Alu_inst: ALU
 ---------------------------------------------------------------------------------------------------------------
 -- MEM STAGE
 ---------------------------------------------------------------------------------------------------------------
+Branch <= EX_MEM_control_signals(3) and EX_MEM_ALU_Zero;
+PCSrc <= Branch;
+
 ---------------------------------------------------------------------------------------------------------------
 -- MEM/WB SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
@@ -230,25 +237,30 @@ moveControlSignalsThroughStages:
 	begin
 		if rising_edge(Clk) then
 			-- Spread signlas from control unit of segmentation registers
-			EX_MEM_control_signals <= ID_EX_control_signals;
 
-			MEM_WB_control_signals <= EX_MEM_control_signals;
 			-- Spread signals of instructions
 			-- IF STAGE
 			IF_ID_instr <= I_DataIn;
 			
 			-- ID STAGE
+			ID_EX_read_data_1 <= ID_read_data_1;
+			ID_EX_read_data_2 <= ID_read_data_2;
+			ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0); -- immediate 16 bytes of I-type instructions
+            ID_EX_pc4 <= IF_ID_pc4;
 			ID_EX_instr <= IF_ID_instr;
-			ID_EX_read_data_1 <= EX_read_data_1;
-			ID_EX_read_data_2 <= EX_read_data_2;
-
-			-- EX STAGE
+			ID_EX_read_data_1 <= ID_read_data_1;
+			ID_EX_read_data_2 <= ID_read_data_2;
+			
+			-- EX STAGE:
+			EX_MEM_control_signals <= ID_EX_control_signals;
+            EX_MEM_read_data_2 <= ID_EX_read_data_2;
 			EX_MEM_instr <= ID_EX_instr;
 			EX_MEM_ALU_Zero <= EX_ALU_Zero;
 			EX_MEM_ALU_Res <= EX_ALU_Res;
 			EX_MEM_add_pc4_inm <= EX_inm_shift_2 + ID_EX_pc4;
 			
 			-- MEM STAGE:
+			MEM_WB_control_signals <= EX_MEM_control_signals;
 			MEM_WB_instr <= EX_MEM_instr;
 			MEM_WB_Data_Mem_In <= D_DataIn;
 			MEM_WB_ALU_Res <= EX_MEM_ALU_Res;
