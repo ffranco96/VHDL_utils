@@ -19,9 +19,9 @@ main:
   nop
   nop
   nop
-  slt $t3, $t1, $t2
-  slt $t4, $t3, $t2
-  nop
-  nop
+  addi $t3, $t2, 4
+  andi $t4, $t1, 13
+  ori  $t5, $t1, 4
+  lui  $t1, 12
   nop
   nop
