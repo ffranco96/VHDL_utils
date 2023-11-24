@@ -125,8 +125,8 @@ moveThroughInstMemory: -- @todo can be done as a flip flop. Move to sequential
 		IF_ID_pc4 <= std_logic_vector(unsigned(IF_ID_pc4) + 4);
 	end if;
 end process moveThroughInstMemory; 
-
-I_Addr <= IF_ID_pc4;
+sI_Addr <= EX_MEM_add_pc4_inm when -- pcsrc =1 else IF_ID_pc4 when pcsrc 0 else x00000000
+I_Addr <= sI_Addr;
 I_RdStb <= '1';
 I_WrStb <= '0';
 
@@ -174,8 +174,6 @@ ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0);
 -- Desplazamiento a la izq 2 bits de inmediate
 EX_inm_shift_2 <= ID_EX_extended_inm sll 2;
 
--- ALU sumador
-EX_MEM_add_pc4_inm <= EX_inm_shift_2 + ID_EX_pc4;
 
 -- Mux Read_data_2 or sign_extend (inmediate)
 EX_Mux_input_B_ALU <= ID_EX_extended_imm when ID_EX_control_signals(8)='1' else
@@ -250,6 +248,7 @@ moveControlSignalsThroughStages:
 			EX_MEM_ALU_Zero <= EX_ALU_Zero;
 			EX_MEM_ALU_Res <= EX_ALU_Res;
 			EX_MEM_read_data_2 <= ID_EX_read_data_2;
+			EX_MEM_add_pc4_inm <= EX_inm_shift_2 + ID_EX_pc4;
 			
 			-- MEM STAGE:
 			MEM_WB_instr <= EX_MEM_instr;
