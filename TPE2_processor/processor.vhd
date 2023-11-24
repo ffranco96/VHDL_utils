@@ -66,7 +66,7 @@ signal sI_Addr: std_logic_vector(31 downto 0);
 
 --IF/ID SEGMENTATION REG--
 signal IF_ID_instr : std_logic_vector(31 downto 0);
--- signal IF_ID_pc4 : std_logic_vector(31 downto 0);@todo uncomment
+signal IF_ID_pc4 : std_logic_vector(31 downto 0);
 
 --ID STAGE--
 signal EX_read_data_1 : std_logic_vector(31 downto 0);
@@ -78,7 +78,7 @@ signal ID_EX_instr : std_logic_vector(31 downto 0);
 signal ID_EX_extended_imm : std_logic_vector(31 downto 0); -- immediate 16 bytes of I-type instructions
 signal ID_EX_read_data_1 : std_logic_vector(31 downto 0);
 signal ID_EX_read_data_2 : std_logic_vector(31 downto 0);
--- signal ID_EX_pc4 : std_logic_vector(31 downto 0); -- PC + 4 @todo uncomment
+signal ID_EX_pc4 : std_logic_vector(31 downto 0); -- PC + 4
 
 --EX STAGE--
 signal EX_Mux_input_B_ALU : std_logic_vector(31 downto 0);
@@ -86,13 +86,15 @@ signal ALU_Control_Res: std_logic_vector(2 downto 0);
 signal Alu_TYPE_R: std_logic_vector(2 downto 0);
 signal EX_ALU_Res : std_logic_vector(31 downto 0);
 signal EX_ALU_Zero : std_logic;
+signal EX_inm_shift_2: std_logic_vector(31 downto 0);  --inmediate desplazado 2 bits
 
 --EX/MEM SEGMENTATION REG--
 signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
 signal EX_MEM_instr : std_logic_vector(31 downto 0);
 signal EX_MEM_ALU_Res : std_logic_vector(31 downto 0); --@todo assign alu res here 
 signal EX_MEM_ALU_Zero : std_logic;
--- signal EX_MEM_pc4_extend : std_logic_vector(31 downto 0); --PC + 4 + (extend shift left 2)@todo uncomment
+signal EX_MEM_add_pc4_inm : std_logic_vector(31 downto 0); --PC + 4 + (inmediate shift left 2)
+signal EX_MEM_read_data_2 : std_logic_vector(31 downto 0);
 
 --MEM STAGE--
 
@@ -118,13 +120,13 @@ moveThroughInstMemory: -- @todo can be done as a flip flop. Move to sequential
 	process(Clk)
 	begin
 	if reset = '1' then
-    	sI_Addr <= x"00000000";
+    	IF_ID_pc4 <= x"00000000";
     elsif rising_edge(Clk) then
-		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);
+		IF_ID_pc4 <= std_logic_vector(unsigned(IF_ID_pc4) + 4);
 	end if;
 end process moveThroughInstMemory; 
 
-I_Addr <= sI_Addr;
+I_Addr <= IF_ID_pc4;
 I_RdStb <= '1';
 I_WrStb <= '0';
 
@@ -169,8 +171,13 @@ ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0);
 ---------------------------------------------------------------------------------------------------------------
 -- EX STAGE
 ---------------------------------------------------------------------------------------------------------------
--- EX_MEM_pc4_extend <= ID_EX_extended_imm sll 2 + ID_EX_pc4; @todo uncomment
+-- Desplazamiento a la izq 2 bits de inmediate
+EX_inm_shift_2 <= ID_EX_extended_inm sll 2;
 
+-- ALU sumador
+EX_MEM_add_pc4_inm <= EX_inm_shift_2 + ID_EX_pc4;
+
+-- Mux Read_data_2 or sign_extend (inmediate)
 EX_Mux_input_B_ALU <= ID_EX_extended_imm when ID_EX_control_signals(8)='1' else
  		               ID_EX_read_data_2 when ID_EX_control_signals(8) = '0' else  --@todo Assign read data 2 from registers here :
 					   x"00000000";
