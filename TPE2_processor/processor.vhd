@@ -69,12 +69,14 @@ signal IF_ID_instr : std_logic_vector(31 downto 0);
 -- signal IF_ID_pc4 : std_logic_vector(31 downto 0);@todo uncomment
 
 --ID STAGE--
+signal EX_read_data_1 : std_logic_vector(31 downto 0);
+signal EX_read_data_2 : std_logic_vector(31 downto 0);
 
 --ID/EX SEGMENTATION REG--
 signal ID_EX_control_signals: std_logic_vector (9 downto 0);
 signal ID_EX_instr : std_logic_vector(31 downto 0);
 signal ID_EX_extended_imm : std_logic_vector(31 downto 0); -- immediate 16 bytes of I-type instructions
-signal ID_EX_read_data_1 : std_logic_vector(31 downto 0); -- @todo assign here Read data 1 from registers bank, and assign to input A of ALU
+signal ID_EX_read_data_1 : std_logic_vector(31 downto 0);
 signal ID_EX_read_data_2 : std_logic_vector(31 downto 0);
 -- signal ID_EX_pc4 : std_logic_vector(31 downto 0); -- PC + 4 @todo uncomment
 
@@ -149,8 +151,8 @@ Registers_bank : registers
 			reg2_dr => IF_ID_instr( 20 downto 16), 	-- Reg 2 to read
 			reg_wr => WB_dest_reg, 					-- Dir of the register to be written
 			data_wr => WB_Mux_Res , 				-- Data to be written
-			data1_rd => ID_EX_Read_data_1 ,			-- Read data 1
-			data2_rd => ID_EX_Read_data_2 ); 		-- Read data 2
+			data1_rd => EX_read_data_1 ,			-- Read data 1
+			data2_rd => EX_read_data_2 );	 		-- Read data 2
 
  -- Control unit instantiaton
  Cont_unit_inst: control_unit	
@@ -232,6 +234,8 @@ moveControlSignalsThroughStages:
 			
 			-- ID STAGE
 			ID_EX_instr <= IF_ID_instr;
+			ID_EX_read_data_1 <= EX_read_data_1;
+			ID_EX_read_data_2 <= EX_read_data_2;
 
 			-- EX STAGE
 			EX_MEM_instr <= ID_EX_instr;
