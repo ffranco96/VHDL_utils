@@ -92,6 +92,7 @@ signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
 signal EX_MEM_instr : std_logic_vector(31 downto 0);
 signal EX_MEM_ALU_Res : std_logic_vector(31 downto 0); --@todo assign alu res here 
 signal EX_MEM_ALU_Zero : std_logic;
+signal EX_MEM_read_data_2 : std_logic_vector(31 downto 0);
 -- signal EX_MEM_pc4_extend : std_logic_vector(31 downto 0); --PC + 4 + (extend shift left 2)@todo uncomment
 
 --MEM STAGE--
@@ -204,6 +205,7 @@ Alu_inst: ALU
 ---------------------------------------------------------------------------------------------------------------
 -- MEM STAGE
 ---------------------------------------------------------------------------------------------------------------
+D_DataOut <= EX_MEM_read_data_2;
 ---------------------------------------------------------------------------------------------------------------
 -- MEM/WB SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
@@ -241,6 +243,7 @@ moveControlSignalsThroughStages:
 			EX_MEM_instr <= ID_EX_instr;
 			EX_MEM_ALU_Zero <= EX_ALU_Zero;
 			EX_MEM_ALU_Res <= EX_ALU_Res;
+			EX_MEM_read_data_2 <= ID_EX_read_data_2;
 			
 			-- MEM STAGE:
 			MEM_WB_instr <= EX_MEM_instr;
