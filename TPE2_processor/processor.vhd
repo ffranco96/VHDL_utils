@@ -270,7 +270,6 @@ moveControlSignalsThroughStages:
 			EX_MEM_ALU_Zero <= EX_ALU_Zero;
 			EX_MEM_ALU_Res <= EX_ALU_Res;
 			EX_MEM_read_data_2 <= ID_EX_read_data_2;
-			EX_MEM_add_pc4_inm <= EX_inm_shift_2 + ID_EX_pc4;
 			
 			-- MEM STAGE:
 			MEM_WB_instr <= EX_MEM_instr;
