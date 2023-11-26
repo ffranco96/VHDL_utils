@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
 use IEEE.NUMERIC_STD.all;
 
-entity processor is
+entity design is
 port(
 	Clk         : in  std_logic;
 	Reset       : in  std_logic;
@@ -20,13 +20,23 @@ port(
 	D_DataOut   : out std_logic_vector(31 downto 0);
 	D_DataIn    : in  std_logic_vector(31 downto 0)
 );
-end processor;
+end design;
 
-architecture processor_arq of processor is 
+architecture processor_arq of design is 
 
 ---------------------------------------------------------------------------------------------------------------
 -- COMPONENTS DECLARATION --
----------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+---------------
+component Program_Counter
+    Port (
+        Clk : in  STD_LOGIC;
+        Reset : in  STD_LOGIC;
+        PC_Out : out STD_LOGIC_VECTOR(31 downto 0);
+        PC_Write : in STD_LOGIC;
+        PC_In : in STD_LOGIC_VECTOR(31 downto 0)
+    );
+end component;
 
 component registers
     port  (clk : in STD_LOGIC;
@@ -67,7 +77,7 @@ signal sI_Addr: std_logic_vector(31 downto 0);
 --IF/ID SEGMENTATION REG--
 signal IF_ID_instr : std_logic_vector(31 downto 0);
 signal IF_ID_pc4 : std_logic_vector(31 downto 0);
-
+                                                 
 --ID STAGE--
 signal ID_read_data_1 : std_logic_vector(31 downto 0);
 signal ID_read_data_2 : std_logic_vector(31 downto 0);
@@ -78,7 +88,7 @@ signal ID_EX_instr : std_logic_vector(31 downto 0);
 signal ID_EX_extended_imm : std_logic_vector(31 downto 0); -- immediate 16 bytes of I-type instructions
 signal ID_EX_read_data_1 : std_logic_vector(31 downto 0);
 signal ID_EX_read_data_2 : std_logic_vector(31 downto 0);
-signal ID_EX_pc4 : std_logic_vector(31 downto 0); -- PC + 4
+signal ID_EX_pc4 : std_logic_vector(31 downto 0); -- PC + 4 @todo uncomment
 
 --EX STAGE--
 signal EX_Mux_input_B_ALU : std_logic_vector(31 downto 0);
@@ -91,14 +101,14 @@ signal EX_inm_shift_2: std_logic_vector(31 downto 0);  --inmediate desplazado 2 
 --EX/MEM SEGMENTATION REG--
 signal EX_MEM_control_signals: std_logic_vector (9 downto 0);
 signal EX_MEM_instr : std_logic_vector(31 downto 0);
-signal EX_MEM_ALU_Res : std_logic_vector(31 downto 0); --@todo assign alu res here 
+signal EX_MEM_ALU_Res : std_logic_vector(31 downto 0); --@todo assign alu res here
 signal EX_MEM_ALU_Zero : std_logic;
-signal EX_MEM_add_pc4_inm : std_logic_vector(31 downto 0); --PC + 4 + (inmediate shift left 2)
+signal EX_MEM_add_pc4_imm : std_logic_vector(31 downto 0); --PC + 4 + (inmediate shift left 2)
 signal EX_MEM_read_data_2 : std_logic_vector(31 downto 0);
+-- signal EX_MEM_pc4_extend : std_logic_vector(31 downto 0); --PC + 4 + (extend shift left 2)@todo uncomment
 
 --MEM STAGE--
 signal PCSrc : std_logic;
-signal Branch : std_logic;
 --MEM/WB SEGMENTATION REG--
 signal MEM_WB_control_signals: std_logic_vector (9 downto 0);
 signal MEM_WB_instr : std_logic_vector(31 downto 0);
@@ -117,19 +127,25 @@ begin
 ---------------------------------------------------------------------------------------------------------------
 -- ETAPA IF
 ---------------------------------------------------------------------------------------------------------------
-moveThroughInstMemory: -- @todo can be done as a flip flop. Move to sequential
-	process(Clk)
-	begin
-	if reset = '1' then
-    	IF_ID_pc4 <= x"00000000";
-    elsif rising_edge(Clk) then
-		IF_ID_pc4 <= std_logic_vector(unsigned(IF_ID_pc4) + 4);
-	end if;
-end process moveThroughInstMemory;
+--moveThroughInstMemory: -- @todo can be done as a flip flop. Move to sequential
+--	process(Clk)
+--	begin
+--	if reset = '1' then
+--    	sI_Addr <= x"00000000";
+--    elsif rising_edge(Clk) then
+--		sI_Addr <= std_logic_vector(unsigned(sI_Addr) + 4);
+--	end if;
+--end process moveThroughInstMemory; 
+PC_inst:  Program_Counter
+    Port map (
+        Clk => Clk,
+        Reset => Reset,
+        PC_Out => sI_Addr,
+        PC_Write => PCSrc,
+        PC_In => EX_MEM_add_pc4_imm
+    );
 
-sI_Addr <= EX_MEM_add_pc4_inm when PCSrc = '1' else
-	            IF_ID_pc4 when PCSrc 0 else 
-				x"00000000";
+--sI_Addr <= PC_out;
 I_Addr <= sI_Addr;
 I_RdStb <= '1';
 I_WrStb <= '0';
@@ -175,11 +191,8 @@ ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0);
 ---------------------------------------------------------------------------------------------------------------
 -- EX STAGE
 ---------------------------------------------------------------------------------------------------------------
--- Desplazamiento a la izq 2 bits de inmediate
-EX_inm_shift_2 <= ID_EX_extended_inm sll 2;
+-- EX_MEM_pc4_extend <= ID_EX_extended_imm sll 2 + ID_EX_pc4; @todo uncomment
 
-
--- Mux Read_data_2 or sign_extend (inmediate)
 EX_Mux_input_B_ALU <= ID_EX_extended_imm when ID_EX_control_signals(8)='1' else
  		               ID_EX_read_data_2 when ID_EX_control_signals(8) = '0' else  --@todo Assign read data 2 from registers here :
 					   x"00000000";
@@ -238,23 +251,19 @@ moveControlSignalsThroughStages:
 	begin
 		if rising_edge(Clk) then
 			-- Spread signlas from control unit of segmentation registers
+			EX_MEM_control_signals <= ID_EX_control_signals;
 
+			MEM_WB_control_signals <= EX_MEM_control_signals;
 			-- Spread signals of instructions
 			-- IF STAGE
 			IF_ID_instr <= I_DataIn;
 			
 			-- ID STAGE
-			ID_EX_read_data_1 <= ID_read_data_1;
-			ID_EX_read_data_2 <= ID_read_data_2;
-			ID_EX_extended_imm <= x"0000" & ID_EX_instr(15 downto 0); -- immediate 16 bytes of I-type instructions
-            ID_EX_pc4 <= IF_ID_pc4;
 			ID_EX_instr <= IF_ID_instr;
 			ID_EX_read_data_1 <= ID_read_data_1;
 			ID_EX_read_data_2 <= ID_read_data_2;
-			
-			-- EX STAGE:
-			EX_MEM_control_signals <= ID_EX_control_signals;
-            EX_MEM_read_data_2 <= ID_EX_read_data_2;
+
+			-- EX STAGE
 			EX_MEM_instr <= ID_EX_instr;
 			EX_MEM_ALU_Zero <= EX_ALU_Zero;
 			EX_MEM_ALU_Res <= EX_ALU_Res;
@@ -262,7 +271,6 @@ moveControlSignalsThroughStages:
 			EX_MEM_add_pc4_inm <= EX_inm_shift_2 + ID_EX_pc4;
 			
 			-- MEM STAGE:
-			MEM_WB_control_signals <= EX_MEM_control_signals;
 			MEM_WB_instr <= EX_MEM_instr;
 			MEM_WB_Data_Mem_In <= D_DataIn;
 			MEM_WB_ALU_Res <= EX_MEM_ALU_Res;

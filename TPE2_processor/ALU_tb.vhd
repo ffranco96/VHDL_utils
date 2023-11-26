@@ -9,6 +9,7 @@ end ALU_Testbench;
 
 architecture behavior of ALU_Testbench is
 
+    -- Component declaration for the ALU
     component ALU
         port (
             A : in std_logic_vector(31 downto 0);
@@ -26,6 +27,7 @@ architecture behavior of ALU_Testbench is
 
 begin
 
+    -- Instantiate the ALU
     UUT : ALU port map (
         A => A,
         B => B,
