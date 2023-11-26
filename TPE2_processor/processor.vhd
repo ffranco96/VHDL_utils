@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
 use IEEE.NUMERIC_STD.all;
 
-entity design is
+entity processor is
 port(
 	Clk         : in  std_logic;
 	Reset       : in  std_logic;
@@ -20,9 +20,9 @@ port(
 	D_DataOut   : out std_logic_vector(31 downto 0);
 	D_DataIn    : in  std_logic_vector(31 downto 0)
 );
-end design;
+end processor;
 
-architecture processor_arq of design is 
+architecture processor_arq of processor is 
 
 ---------------------------------------------------------------------------------------------------------------
 -- COMPONENTS DECLARATION --
@@ -153,6 +153,8 @@ I_WrStb <= '0';
 D_Addr <= EX_MEM_ALU_Res;
 D_RdStb <= EX_MEM_control_signals(5);-- MemRead
 D_WrStb <= EX_MEM_control_signals(4); -- MemWrite
+
+--IF_ID_instr <= I_DataIn;
 ---------------------------------------------------------------------------------------------------------------
 -- REGISTRO DE SEGMENTACION IF/ID
 --------------------------------------------------------------------------------------------------------------- 
@@ -227,7 +229,8 @@ Alu_inst: ALU
 -- MEM STAGE
 ---------------------------------------------------------------------------------------------------------------
 D_DataOut <= EX_MEM_read_data_2;
-PCSrc <= EX_MEM_add_pc4_imm and EX_MEM_control_signals(3);
+PCSrc <= EX_MEM_ALU_Zero and EX_MEM_control_signals(3);
+
 ---------------------------------------------------------------------------------------------------------------
 -- MEM/WB SEGMENTATION REG
 ---------------------------------------------------------------------------------------------------------------
@@ -257,6 +260,7 @@ moveControlSignalsThroughStages:
 			IF_ID_instr <= I_DataIn;
 			
 			-- ID STAGE
+            ID_EX_pc4 <= sI_Addr;
 			ID_EX_instr <= IF_ID_instr;
 			ID_EX_read_data_1 <= ID_read_data_1;
 			ID_EX_read_data_2 <= ID_read_data_2;
