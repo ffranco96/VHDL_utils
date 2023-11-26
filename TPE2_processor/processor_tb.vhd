@@ -25,7 +25,7 @@ end processor_tb;
 
 architecture processor_tb_arq  of processor_tb is
 	-- Component declaration of the tested unit
-	component processor
+	component design
    port(
    	  Clk         : in  std_logic;
 	   Reset       : in  std_logic;
@@ -80,7 +80,7 @@ architecture processor_tb_arq  of processor_tb is
 begin
 	  
 	-- Unit Under Test port map
-	UUT : processor
+	UUT : design
 		port map (
 			Clk             => Clk, --Signal Testbench => Signal Component
 			Reset           => Reset,
@@ -100,7 +100,7 @@ begin
 
 	Instruction_Mem_inst : memory
 	generic map (
-	   C_ELF_FILENAME     => "program1",
+	   C_ELF_FILENAME     => "program2",
       C_MEM_SIZE         => 1024
    )
 	port map (
